@@ -1,0 +1,59 @@
+{
+  "name": "chelys-recipes",
+  "version": "0.1.0",
+  "description": "Plugin recipes for Chelys - the local process host for TeXlyre language servers and tools",
+  "author": "TeXlyre",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/texlyre/chelys-recipes.git"
+  },
+  "homepage": "https://texlyre.github.io/chelys-recipes/",
+  "bugs": {
+    "url": "https://github.com/texlyre/chelys-recipes/issues"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:api": "node scripts/build-api.cjs",
+    "prepare": "npm run build",
+    "validate": "node scripts/validate-recipes.cjs",
+    "dev": "npm run build:api && npm run build",
+    "build:pages-example": "npm run dev && cd example/github-pages-example && npm install",
+    "pages-example": "cd example/github-pages-example && npm start",
+    "clean": "rm -rf dist api"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "recipes/",
+    "categories.yml",
+    "api/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "lsp",
+    "language-server",
+    "recipes",
+    "texlyre",
+    "chelys",
+    "docker",
+    "local-first"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.0",
+    "js-yaml": "^4.1.0",
+    "rollup": "^3.29.0",
+    "rollup-plugin-dts": "^6.0.0",
+    "typescript": "^5.0.0",
+    "tslib": "^2.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
