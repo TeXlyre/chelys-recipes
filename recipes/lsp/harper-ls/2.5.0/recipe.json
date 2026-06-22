@@ -1,0 +1,123 @@
+{
+  "id": "harper-ls",
+  "type": "lsp",
+  "name": "Harper LS",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/harper-ls/icon.svg",
+  "description": "Offline, privacy-first grammar and spelling checker exposed as a Language Server. Works well for prose-heavy formats such as TeX, LaTeX, Typst, BibTeX, Markdown, and plain text.",
+  "notes": "Harper LS is distributed via Cargo and requires the Rust toolchain in system mode. Docker mode builds Harper LS and the WebSocket proxy inside the image.",
+  "tags": [
+    "grammar",
+    "spell-check",
+    "offline",
+    "prose",
+    "markdown"
+  ],
+  "author": "TeXlyre",
+  "version": "2.5.0",
+  "lastUpdated": "2026-06-11T10:00:00Z",
+  "variables": [
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7000",
+      "help": "Port the WebSocket proxy listens on."
+    },
+    {
+      "key": "dialect",
+      "label": "English dialect",
+      "kind": "select",
+      "default": "American",
+      "options": [
+        "American",
+        "British",
+        "Australian",
+        "Canadian"
+      ],
+      "help": "Spelling dialect Harper checks against."
+    }
+  ],
+  "env": {},
+  "modes": [
+    {
+      "kind": "system",
+      "installSteps": [
+        {
+          "label": "Install Harper LS",
+          "command": "cargo",
+          "args": [
+            "install",
+            "harper-ls@2.5.0",
+            "--locked"
+          ]
+        },
+        {
+          "label": "Install WebSocket proxy",
+          "command": "cargo",
+          "args": [
+            "install",
+            "lsp-ws-proxy",
+            "--locked"
+          ]
+        }
+      ],
+      "runCommand": {
+        "command": "lsp-ws-proxy",
+        "args": [
+          "-l",
+          "127.0.0.1:${wsPort}",
+          "--",
+          "harper-ls",
+          "--stdio"
+        ]
+      },
+      "uninstallSteps": [
+        {
+          "label": "Remove Harper LS",
+          "command": "cargo",
+          "args": [
+            "uninstall",
+            "harper-ls"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "docker",
+      "image": "chelys/harper-ls:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/harper-ls/2.5.0/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "harper-ls",
+    "fileExtensions": [
+      "tex",
+      "latex",
+      "typ",
+      "bib",
+      "md",
+      "txt"
+    ],
+    "languageIdMap": {
+      "tex": "markdown",
+      "latex": "markdown",
+      "typ": "markdown",
+      "bib": "markdown",
+      "md": "markdown",
+      "txt": "markdown"
+    },
+    "transportUrl": "ws://localhost:${wsPort}",
+    "contentLength": false,
+    "clientConfig": "{\"rootUri\":\"file:///\",\"workspaceFolders\":[],\"initializationOptions\":{\"harper-ls\":{\"dialect\":\"${dialect}\"}}}"
+  }
+}
