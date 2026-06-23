@@ -1,0 +1,105 @@
+{
+  "id": "tinymist",
+  "type": "lsp",
+  "name": "Tinymist (Typst)",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/tinymist/icon.png",
+  "description": "Integrated language service for Typst. Provides diagnostics, completion, hover, go-to-definition, and formatting for .typ files.",
+  "notes": "Tinymist speaks LSP over stdio and is bridged to WebSocket with lsp-ws-proxy. System mode builds the server from source with cargo and requires the Rust toolchain. Docker mode bundles Tinymist and the proxy. First system build can take several minutes.",
+  "tags": [
+    "typst",
+    "diagnostics",
+    "completion",
+    "formatting"
+  ],
+  "author": "TeXlyre",
+  "version": "0.15.2",
+  "lastUpdated": "2025-06-01T10:00:00Z",
+  "variables": [
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7030",
+      "help": "Port the WebSocket proxy listens on."
+    }
+  ],
+  "env": {},
+  "modes": [
+    {
+      "kind": "system",
+      "installSteps": [
+        {
+          "label": "Install Tinymist",
+          "command": "cargo",
+          "args": [
+            "install",
+            "--git",
+            "https://github.com/Myriad-Dreamin/tinymist",
+            "--tag",
+            "v0.15.2",
+            "--locked",
+            "tinymist-cli"
+          ]
+        },
+        {
+          "label": "Install WebSocket proxy",
+          "command": "cargo",
+          "args": [
+            "install",
+            "lsp-ws-proxy",
+            "--locked"
+          ]
+        }
+      ],
+      "runCommand": {
+        "command": "lsp-ws-proxy",
+        "args": [
+          "-l",
+          "127.0.0.1:${wsPort}",
+          "--",
+          "tinymist",
+          "lsp"
+        ]
+      },
+      "uninstallSteps": [
+        {
+          "label": "Remove Tinymist",
+          "command": "cargo",
+          "args": [
+            "uninstall",
+            "tinymist-cli"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "docker",
+      "image": "chelys/tinymist:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/tinymist/0.15.2/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "tinymist",
+    "fileExtensions": [
+      "typ",
+      "typst"
+    ],
+    "languageIdMap": {
+      "typ": "typst",
+      "typst": "typst"
+    },
+    "transportUrl": "ws://localhost:${wsPort}",
+    "contentLength": false,
+    "clientConfig": "{\"rootUri\":\"file:///\",\"workspaceFolders\":[],\"capabilities\":{\"workspace\":{\"configuration\":true}},\"initializationOptions\":{}}"
+  }
+}
