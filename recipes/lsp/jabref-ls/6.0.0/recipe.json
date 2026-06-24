@@ -1,0 +1,115 @@
+{
+  "id": "jabref-ls",
+  "type": "lsp",
+  "name": "JabRef LSP",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/jabref-ls/icon.svg",
+  "description": "BibTeX/BibLaTeX integrity diagnostics from JabRef's language server (jabls). Surfaces consistency, key, and formatting problems in .bib files as you edit.",
+  "notes": "BibTeX/BibLaTeX diagnostics from JabRef's language server (jabls). jabls speaks LSP over a TCP socket only, so it is run as a local TCP server and bridged to WebSocket via socat + lsp-ws-proxy. Docker mode bundles Java 21, JBang, socat, and the proxy and is the recommended option. System mode requires Java 21, JBang, socat, and cargo on the host. Tracks JabRef main (jablib 6.0-SNAPSHOT); jabls has no standalone pinned release, so this follows the in-development 6.0 line.",
+  "tags": [
+    "bibtex",
+    "biblatex",
+    "diagnostics",
+    "jabref",
+    "latex"
+  ],
+  "author": "TeXlyre",
+  "version": "6.0.0",
+  "lastUpdated": "2026-06-28T11:00:00Z",
+  "variables": [
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7021",
+      "help": "Port the WebSocket proxy listens on."
+    }
+  ],
+  "env": {},
+  "modes": [
+    {
+      "kind": "system",
+      "installSteps": [
+        {
+          "label": "Install JBang",
+          "command": "sh",
+          "args": [
+            "-c",
+            "curl -Ls https://sh.jbang.dev | bash -s - app setup"
+          ]
+        },
+        {
+          "label": "Trust JabRef LSP source",
+          "command": "jbang",
+          "args": [
+            "trust",
+            "add",
+            "https://raw.githubusercontent.com/JabRef/jabref/main/.jbang/"
+          ]
+        },
+        {
+          "label": "Prefetch JabRef LSP",
+          "command": "jbang",
+          "args": [
+            "https://raw.githubusercontent.com/JabRef/jabref/main/.jbang/JabLsLauncher.java",
+            "--help"
+          ]
+        },
+        {
+          "label": "Install WebSocket proxy",
+          "command": "cargo",
+          "args": [
+            "install",
+            "lsp-ws-proxy",
+            "--locked"
+          ]
+        }
+      ],
+      "runCommand": {
+        "command": "sh",
+        "args": [
+          "-c",
+          "jbang trust add https://raw.githubusercontent.com/JabRef/jabref/main/.jbang/ >/dev/null 2>&1 || true; jbang https://raw.githubusercontent.com/JabRef/jabref/main/.jbang/JabLsLauncher.java -p 2087 & while ! socat -T1 - TCP:127.0.0.1:2087 </dev/null >/dev/null 2>&1; do sleep 0.5; done; exec lsp-ws-proxy -l 127.0.0.1:${wsPort} -- socat STDIO TCP:127.0.0.1:2087"
+        ]
+      },
+      "uninstallSteps": [
+        {
+          "label": "Remove JabRef LSP trust rule",
+          "command": "sh",
+          "args": [
+            "-c",
+            "jbang trust remove https://raw.githubusercontent.com/JabRef/jabref/main/.jbang/ >/dev/null 2>&1 || true"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "docker",
+      "image": "chelys/jabls:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/jabref-ls/6.0.0/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "jabref-ls",
+    "fileExtensions": [
+      "bib",
+      "bibtex"
+    ],
+    "languageIdMap": {
+      "bib": "bibtex",
+      "bibtex": "bibtex"
+    },
+    "transportUrl": "ws://localhost:${wsPort}",
+    "contentLength": false,
+    "clientConfig": "{\"rootUri\":\"file:///\",\"workspaceFolders\":[],\"capabilities\":{\"workspace\":{\"configuration\":true}},\"initializationOptions\":{}}"
+  }
+}
