@@ -1,0 +1,297 @@
+{
+  "id": "ltex-ls-plus",
+  "type": "lsp",
+  "name": "LTeX LS Plus",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/ltex-ls-plus/icon.svg",
+  "description": "Grammar and spell checker for LaTeX, Markdown, Typst, and BibTeX, built on LanguageTool. Exposes language and mother-tongue options for false-friend detection.",
+  "notes": "System mode requires Java 21; set JAVA_HOME below if your default java is older. Docker mode bundles its own Java 21.",
+  "tags": [
+    "grammar",
+    "spell-check",
+    "languagetool",
+    "latex",
+    "markdown"
+  ],
+  "author": "TeXlyre",
+  "version": "18.7.0",
+  "lastUpdated": "2025-06-01T10:00:00Z",
+  "variables": [
+    {
+      "key": "language",
+      "label": "Document language",
+      "kind": "select",
+      "default": "en-US",
+      "options": [
+        "en-US",
+        "en-GB",
+        "de-DE",
+        "fr-FR",
+        "es-ES",
+        "it-IT",
+        "nl-NL",
+        "pt-BR"
+      ],
+      "help": "Primary language LanguageTool checks against."
+    },
+    {
+      "key": "motherTongue",
+      "label": "Mother tongue",
+      "kind": "text",
+      "default": "",
+      "help": "Enables false-friend detection, for example de-DE. Leave blank to disable."
+    },
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7020",
+      "help": "Port the WebSocket proxy listens on."
+    }
+  ],
+  "env": {},
+  "modes": [
+    {
+      "kind": "system",
+      "installSteps": [],
+      "runCommand": {
+        "command": "lsp-ws-proxy",
+        "args": [
+          "-l",
+          "127.0.0.1:${wsPort}",
+          "--",
+          "./ltex-ls-plus-18.7.0/bin/ltex-ls-plus"
+        ]
+      },
+      "uninstallSteps": [
+        {
+          "label": "Remove extracted server",
+          "command": "rm",
+          "args": [
+            "-rf",
+            "ltex-ls-plus-18.7.0"
+          ]
+        }
+      ],
+      "platforms": {
+        "linux": {
+          "installSteps": [
+            {
+              "label": "Download LTeX LS Plus",
+              "command": "curl",
+              "args": [
+                "-fL",
+                "-o",
+                "ltex-ls-plus-18.7.0-linux-x64.tar.gz",
+                "https://github.com/ltex-plus/ltex-ls-plus/releases/download/18.7.0/ltex-ls-plus-18.7.0-linux-x64.tar.gz"
+              ]
+            },
+            {
+              "label": "Extract archive",
+              "command": "tar",
+              "args": [
+                "-xzf",
+                "ltex-ls-plus-18.7.0-linux-x64.tar.gz"
+              ]
+            },
+            {
+              "label": "Install WebSocket proxy",
+              "command": "cargo",
+              "args": [
+                "install",
+                "lsp-ws-proxy",
+                "--locked"
+              ]
+            }
+          ],
+          "runCommand": {
+            "command": "lsp-ws-proxy",
+            "args": [
+              "-l",
+              "127.0.0.1:${wsPort}",
+              "--",
+              "./ltex-ls-plus-18.7.0/bin/ltex-ls-plus"
+            ]
+          },
+          "uninstallSteps": [
+            {
+              "label": "Remove extracted server",
+              "command": "rm",
+              "args": [
+                "-rf",
+                "ltex-ls-plus-18.7.0"
+              ]
+            },
+            {
+              "label": "Remove downloaded archive",
+              "command": "rm",
+              "args": [
+                "-f",
+                "ltex-ls-plus-18.7.0-linux-x64.tar.gz"
+              ]
+            }
+          ]
+        },
+        "macos": {
+          "installSteps": [
+            {
+              "label": "Download LTeX LS Plus",
+              "command": "curl",
+              "args": [
+                "-fL",
+                "-o",
+                "ltex-ls-plus-18.7.0-mac-x64.tar.gz",
+                "https://github.com/ltex-plus/ltex-ls-plus/releases/download/18.7.0/ltex-ls-plus-18.7.0-mac-x64.tar.gz"
+              ]
+            },
+            {
+              "label": "Extract archive",
+              "command": "tar",
+              "args": [
+                "-xzf",
+                "ltex-ls-plus-18.7.0-mac-x64.tar.gz"
+              ]
+            },
+            {
+              "label": "Install WebSocket proxy",
+              "command": "cargo",
+              "args": [
+                "install",
+                "lsp-ws-proxy",
+                "--locked"
+              ]
+            }
+          ],
+          "runCommand": {
+            "command": "lsp-ws-proxy",
+            "args": [
+              "-l",
+              "127.0.0.1:${wsPort}",
+              "--",
+              "./ltex-ls-plus-18.7.0/bin/ltex-ls-plus"
+            ]
+          },
+          "uninstallSteps": [
+            {
+              "label": "Remove extracted server",
+              "command": "rm",
+              "args": [
+                "-rf",
+                "ltex-ls-plus-18.7.0"
+              ]
+            },
+            {
+              "label": "Remove downloaded archive",
+              "command": "rm",
+              "args": [
+                "-f",
+                "ltex-ls-plus-18.7.0-mac-x64.tar.gz"
+              ]
+            }
+          ]
+        },
+        "windows": {
+          "installSteps": [
+            {
+              "label": "Download LTeX LS Plus",
+              "command": "curl",
+              "args": [
+                "-fL",
+                "-o",
+                "ltex-ls-plus-18.7.0-windows-x64.zip",
+                "https://github.com/ltex-plus/ltex-ls-plus/releases/download/18.7.0/ltex-ls-plus-18.7.0-windows-x64.zip"
+              ]
+            },
+            {
+              "label": "Extract archive",
+              "command": "tar",
+              "args": [
+                "-xf",
+                "ltex-ls-plus-18.7.0-windows-x64.zip"
+              ]
+            },
+            {
+              "label": "Install WebSocket proxy",
+              "command": "cargo",
+              "args": [
+                "install",
+                "lsp-ws-proxy",
+                "--locked"
+              ]
+            }
+          ],
+          "runCommand": {
+            "command": "lsp-ws-proxy",
+            "args": [
+              "-l",
+              "127.0.0.1:${wsPort}",
+              "--",
+              "./ltex-ls-plus-18.7.0/bin/ltex-ls-plus.bat"
+            ]
+          },
+          "uninstallSteps": [
+            {
+              "label": "Remove extracted server",
+              "command": "cmd",
+              "args": [
+                "/C",
+                "rmdir",
+                "/S",
+                "/Q",
+                "ltex-ls-plus-18.7.0"
+              ]
+            },
+            {
+              "label": "Remove downloaded archive",
+              "command": "cmd",
+              "args": [
+                "/C",
+                "del",
+                "/Q",
+                "ltex-ls-plus-18.7.0-windows-x64.zip"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "kind": "docker",
+      "image": "chelys/ltex-ls-plus:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/ltex-ls-plus/18.7.0/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "ltex-ls",
+    "fileExtensions": [
+      "tex",
+      "latex",
+      "typ",
+      "typst",
+      "bib",
+      "md",
+      "markdown"
+    ],
+    "languageIdMap": {
+      "tex": "latex",
+      "latex": "latex",
+      "typ": "typst",
+      "typst": "typst",
+      "bib": "bibtex",
+      "md": "markdown",
+      "markdown": "markdown"
+    },
+    "transportUrl": "ws://localhost:${wsPort}",
+    "contentLength": false,
+    "clientConfig": "{\"rootUri\":\"file:///\",\"workspaceFolders\":[],\"capabilities\":{\"workspace\":{\"configuration\":true},\"window\":{\"workDoneProgress\":false}},\"initializationOptions\":{\"ltex\":{\"language\":\"${language}\",\"additionalRules\":{\"motherTongue\":\"${motherTongue}\"},\"dictionary\":{},\"disabledRules\":{},\"enabledRules\":{}}}}"
+  }
+}
