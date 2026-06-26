@@ -1,0 +1,26 @@
+{
+  "name": "chelys-recipes-demo-pages",
+  "version": "0.1.0",
+  "description": "GitHub Pages demo for Chelys Recipes",
+  "author": "TeXlyre",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/texlyre/chelys-recipes.git"
+  },
+  "homepage": "https://texlyre.github.io/chelys-recipes/",
+  "private": true,
+  "scripts": {
+    "build": "webpack --mode production",
+    "start": "webpack serve --mode development"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.8.1",
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "webpack": "^5.88.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.2"
+  }
+}

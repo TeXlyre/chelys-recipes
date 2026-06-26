@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plugin recipes for Chelys - the local process host for TeXlyre language servers and tools">
+  <title>Chelys Recipes</title>
+</head>
+
+<body>
+  <header>
+    <h1>Chelys Recipes</h1>
+    <p>Plugin recipes for Chelys, the local process host for TeXlyre language servers and tools.</p>
+    <div class="links">
+      <a href="https://github.com/texlyre/chelys-recipes" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://texlyre.github.io/texlyre/" target="_blank" rel="noopener noreferrer">Launch TeXlyre</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="demo-container">
+      <h2>Recipe Browser</h2>
+      <p>Browse language-server and tool recipes that Chelys can install and run locally for TeXlyre.</p>
+
+      <div class="controls">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search recipes..." />
+        </div>
+        <div class="filter-controls">
+          <select id="categoryFilter">
+            <option value="">All Types</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalRecipes">0</div>
+          <div class="stat-label">Total Recipes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalCategories">0</div>
+          <div class="stat-label">Types</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="lastUpdated">-</div>
+          <div class="stat-label">Last Updated</div>
+        </div>
+      </div>
+
+      <div id="recipes-grid" class="recipes-grid"></div>
+
+      <div id="loading" class="loading">
+        <p>Loading recipes...</p>
+      </div>
+
+      <div id="error" class="error" style="display: none;">
+        <p>Error loading recipes. Please try again later.</p>
+      </div>
+    </section>
+
+    <section class="api-info">
+      <h2>API Reference</h2>
+      <p>Access recipes programmatically using the JSON API:</p>
+      <div class="api-endpoint">
+        GET https://texlyre.github.io/chelys-recipes/api/recipes.json
+      </div>
+      <p>The API returns every recipe organized by type, including its manifest URL. Chelys fetches this index in
+        <strong>Settings &rarr; Plugins &rarr; Browse recipes</strong>.</p>
+    </section>
+
+    <section class="usage">
+      <h2>Usage</h2>
+      <pre><code>import { recipesApi } from 'chelys-recipes';
+
+// Get every recipe grouped by type
+const api = await recipesApi.getRecipes();
+
+// Search recipes
+const results = await recipesApi.searchRecipes('grammar');
+
+// Get recipes by type
+const servers = await recipesApi.getRecipesByCategory('lsp');
+
+// Fetch a full manifest
+const manifest = await recipesApi.getManifest(results[0]);</code></pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>MIT License &copy; <span id="year"></span> TeXlyre</p>
+    <p>Part of the <a href="https://texlyre.github.io/texlyre/">TeXlyre</a> project</p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+
+</html>
