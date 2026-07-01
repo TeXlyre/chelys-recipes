@@ -1,6 +1,6 @@
 # Chelys Recipes
 
-Plugin recipes for [Chelys](https://texlyre.github.io/chelys/), the local
+Plugin recipes for [Chelys](https://github.com/TeXlyre/chelys), the local
 process host that installs and runs language servers and tools for TeXlyre.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
