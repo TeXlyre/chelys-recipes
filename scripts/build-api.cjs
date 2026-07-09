@@ -184,6 +184,10 @@ async function buildApi() {
             ),
           };
 
+          if (Array.isArray(latestManifest.extraFiles) && latestManifest.extraFiles.length > 0) {
+            entry.extraFiles = latestManifest.extraFiles;
+          }
+
           category.recipes.push(entry);
           console.log(
             `  + Added recipe: ${entry.name} (${versionEntries.length} version${versionEntries.length === 1 ? '' : 's'})`,

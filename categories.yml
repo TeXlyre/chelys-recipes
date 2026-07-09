@@ -2,3 +2,6 @@ categories:
   - id: lsp
     name: Language Servers
     description: Language Server Protocol recipes exposed to TeXlyre over a WebSocket proxy
+  - id: typesetter
+    name: Typesetters
+    description: Typesetting engines exposed to TeXlyre over a WebSocket compile bridge

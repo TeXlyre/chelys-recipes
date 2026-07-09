@@ -9,6 +9,9 @@ const CATEGORIES_FILE = './categories.yml';
 const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select'];
 const MODE_KINDS = ['system', 'docker', 'connect'];
 
+const BRIDGE_REF = /chelys-typeset-bridge:(\d+)/;
+const INCREMENTAL_SYNC_MIN_BRIDGE = 1;
+
 const SEMVER_DIR = /^\d+\.\d+\.\d+/;
 
 function discoverRecipeVersions(recipePath) {
@@ -114,6 +117,69 @@ class RecipeValidator {
     }
   }
 
+  validateExtraFiles(manifest, recipeId, recipeVersionPath) {
+    if (manifest.extraFiles === undefined) {
+      return;
+    }
+    if (!Array.isArray(manifest.extraFiles)) {
+      this.log('error', 'extraFiles must be an array of relative paths', recipeId);
+      return;
+    }
+
+    for (const raw of manifest.extraFiles) {
+      if (typeof raw !== 'string' || !raw.trim()) {
+        this.log('error', 'extraFiles entries must be non-empty strings', recipeId);
+        continue;
+      }
+
+      const entry = raw.trim().replace(/^\.\//, '');
+      const unsafe =
+        entry.startsWith('/') ||
+        entry.startsWith('\\') ||
+        /^[a-zA-Z]:/.test(entry) ||
+        entry.split('/').some((segment) => segment === '' || segment === '..');
+      if (unsafe) {
+        this.log('error', `Unsafe extraFiles path: ${raw}`, recipeId);
+        continue;
+      }
+
+      const filePath = path.join(recipeVersionPath, entry);
+      if (!fs.existsSync(filePath)) {
+        this.log('error', `extraFiles path not found in recipe directory: ${entry}`, recipeId);
+      }
+    }
+  }
+
+  validateTypesetter(manifest, recipeId, recipeVersionPath) {
+    if (manifest.type !== 'typesetter') {
+      return;
+    }
+
+    const typeConfig = manifest.typeConfig || {};
+    const hasDockerMode = Array.isArray(manifest.modes)
+      && manifest.modes.some((mode) => mode.kind === 'docker');
+
+    const dockerfilePath = path.join(recipeVersionPath, 'Dockerfile');
+    const dockerfile = fs.existsSync(dockerfilePath)
+      ? fs.readFileSync(dockerfilePath, 'utf8')
+      : '';
+
+    const match = dockerfile.match(BRIDGE_REF);
+    const bridgeVersion = match ? Number(match[1]) : null;
+
+    if (typeConfig.incrementalSync === true && hasDockerMode) {
+      if (bridgeVersion === null) {
+        this.log('error', 'typeConfig.incrementalSync is true but the Dockerfile does not pin chelys-typeset-bridge', recipeId);
+      } else if (bridgeVersion < INCREMENTAL_SYNC_MIN_BRIDGE) {
+        this.log('error', `typeConfig.incrementalSync requires chelys-typeset-bridge:${INCREMENTAL_SYNC_MIN_BRIDGE} or later (found :${bridgeVersion})`, recipeId);
+      }
+    }
+
+    if (hasDockerMode && dockerfile && bridgeVersion === null) {
+      this.log('warning', 'Typesetter Dockerfile does not use chelys-typeset-bridge; the compile protocol is reimplemented inline', recipeId);
+    }
+  }
+
   validateManifest(recipeVersionPath, recipeId, categoryId, validCategories) {
     const manifestPath = path.join(recipeVersionPath, 'recipe.json');
 
@@ -176,6 +242,8 @@ class RecipeValidator {
 
     this.validateVariables(manifest, recipeId);
     this.validateModes(manifest, recipeId, recipeVersionPath);
+    this.validateExtraFiles(manifest, recipeId, recipeVersionPath);
+    this.validateTypesetter(manifest, recipeId, recipeVersionPath);
 
     return manifest;
   }
