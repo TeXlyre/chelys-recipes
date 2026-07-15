@@ -1,0 +1,255 @@
+{
+    "id": "pretext",
+    "type": "typesetter",
+    "name": "PreTeXt",
+    "description": "The PreTeXt authoring system. Builds .ptx projects to PDF for preview, and exports the web, or EPUB targets as a ZIP archive.",
+    "notes": "PreTeXt runs inside a Docker container alongside the shared Chelys typesetter bridge (ghcr.io/texlyre/chelys-typeset-bridge:1) and a PreTeXt-specific engine adapter. PreTeXt builds a project instead of a single file: the project root must contain a project.ptx manifest declaring targets, which 'pretext new book' scaffolds. The adapter reads project.ptx, picks the target matching the requested format (or the one named in the Target field), runs 'pretext build <target>', and returns either the PDF or a ZIP of the target's output directory. Preview is PDF only; html, epub and braille targets are download-only via Export, because their output is a directory of cross-linked files. The image is large (TeX Live full plus a PreTeXt virtualenv) and a first build of a textbook can take minutes, so ENGINE_TIMEOUT defaults to 15 minutes. The bridge keeps a per-connection working tree and reconciles it against the manifest TeXlyre sends, so only changed files travel after the first compile and PreTeXt's generated assets under output/ survive between builds. Clearing the cache discards both.",
+    "tags": [
+        "pretext",
+        "ptx",
+        "textbook",
+        "typesetting",
+        "pdf",
+        "html",
+        "epub"
+    ],
+    "author": "TeXlyre",
+    "version": "2.44.0",
+    "lastUpdated": "2026-07-15T10:00:00Z",
+    "variables": [
+        {
+            "key": "wsPort",
+            "label": "WebSocket port",
+            "kind": "number",
+            "default": "7041",
+            "help": "Port the compile bridge listens on."
+        }
+    ],
+    "env": {},
+    "extraFiles": [
+        "engine.cjs"
+    ],
+    "modes": [
+        {
+            "kind": "docker",
+            "image": "chelys/pretext:local",
+            "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/pretext/2.44.0/Dockerfile",
+            "buildSteps": [],
+            "runArgs": [
+                "-p",
+                "${wsPort}:${wsPort}",
+                "-e",
+                "WS_PORT=${wsPort}"
+            ]
+        },
+        {
+            "kind": "connect"
+        }
+    ],
+    "typeConfig": {
+        "configId": "pretext",
+        "projectType": "pretext",
+        "inputExtensions": [
+            "ptx"
+        ],
+        "inputFiles": [
+            {
+                "extension": "ptx",
+                "label": {
+                    "key": "{typesetter} File",
+                    "params": {
+                        "typesetter": "PreTeXt"
+                    }
+                },
+                "mimeType": "application/xml"
+            }
+        ],
+        "outputFormats": [
+            {
+                "id": "pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "pdf-renderer"
+            },
+            {
+                "id": "canvas-pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "canvas-renderer",
+                "outputType": "canvas"
+            },
+            {
+                "id": "zip",
+                "mimeType": "application/zip"
+            }
+        ],
+        "transportType": "websocket",
+        "transportUrl": "ws://localhost:${wsPort}",
+        "incrementalSync": true,
+        "formatter": "",
+        "hasOutline": false,
+        "ui": {
+            "compile": {
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Output Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Canvas (PDF)",
+                                "value": "canvas-pdf"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "target",
+                        "label": {
+                            "key": "Build Target:"
+                        },
+                        "kind": "text",
+                        "sendAs": "option",
+                        "defaultValue": "",
+                        "help": {
+                            "key": "Name of a project.ptx target. Leave blank to use the first PDF target."
+                        }
+                    },
+                    {
+                        "key": "generateAssets",
+                        "label": {
+                            "key": "Generate assets"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false,
+                        "help": {
+                            "key": "Run latex-image, Asymptote and Sage generation before building. Slow."
+                        }
+                    }
+                ]
+            },
+            "export": {
+                "label": "Export",
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Export Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Web site (ZIP)",
+                                "value": "html"
+                            },
+                            {
+                                "label": "EPUB (ZIP)",
+                                "value": "epub"
+                            },
+                            {
+                                "label": "Braille (ZIP)",
+                                "value": "braille"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "target",
+                        "label": {
+                            "key": "Build Target:"
+                        },
+                        "kind": "text",
+                        "sendAs": "option",
+                        "defaultValue": "",
+                        "help": {
+                            "key": "Name of a project.ptx target. Leave blank to use the first target of the chosen format."
+                        }
+                    },
+                    {
+                        "key": "generateAssets",
+                        "label": {
+                            "key": "Generate assets"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    },
+                    {
+                        "key": "includeLog",
+                        "label": {
+                            "key": "Include log file"
+                        },
+                        "kind": "boolean",
+                        "defaultValue": false,
+                        "sendAs": "option"
+                    }
+                ]
+            },
+            "renderers": [
+                {
+                    "format": "pdf",
+                    "label": "PDF"
+                },
+                {
+                    "format": "canvas-pdf",
+                    "label": "Canvas (PDF)"
+                }
+            ],
+            "info": {
+                "title": "PreTeXt",
+                "rows": [
+                    {
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "PreTeXt"
+                            }
+                        },
+                        "value": {
+                            "key": "pretext v2.44.0"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Transport Protocol:"
+                        },
+                        "value": {
+                            "key": "WebSocket compile bridge"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Input Format:"
+                        },
+                        "value": {
+                            "key": "PreTeXt (.ptx) project with project.ptx"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Output Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, Canvas (PDF)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Export Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, Web site (ZIP), EPUB (ZIP), Braille (ZIP)"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
