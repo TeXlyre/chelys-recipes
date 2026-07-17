@@ -1,0 +1,241 @@
+{
+  "id": "context",
+  "type": "typesetter",
+  "name": "ConTeXt LMTX",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/context/icon.png",
+  "description": "The ConTeXt LMTX typesetting system. Compiles .tex documents to PDF with LuaMetaTeX and SyncTeX support.",
+  "notes": "ConTeXt runs inside a Docker container alongside the shared Chelys typesetter bridge (ghcr.io/texlyre/chelys-typeset-bridge:1). The image uses the same texlive/texlive:latest-full base as the PreTeXt recipe. The context command uses LuaMetaTeX by default; the recipe does not pass --luatex. The engine adapter enables --synctex=repeat so the generated SyncTeX data is compatible with standard external SyncTeX consumers, then returns it through the generic compile-artifact protocol. The bridge keeps a per-connection working tree and only transfers changed project files after the first compile.",
+  "tags": [
+    "context",
+    "lmtx",
+    "luametatex",
+    "tex",
+    "typesetting",
+    "pdf",
+    "synctex"
+  ],
+  "author": "TeXlyre",
+  "version": "2026.0.0",
+  "lastUpdated": "2026-07-17T00:00:00Z",
+  "variables": [
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7042",
+      "help": "Port the compile bridge listens on."
+    }
+  ],
+  "env": {},
+  "extraFiles": [
+    "engine.cjs"
+  ],
+  "modes": [
+    {
+      "kind": "docker",
+      "image": "chelys/context:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/context/2026.0.0/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "context",
+    "projectType": "context",
+    "projectGroup": "tex",
+    "inputExtensions": [
+      "tex"
+    ],
+    "inputFiles": [
+      {
+        "extension": "tex",
+        "label": {
+          "key": "{typesetter} File",
+          "params": {
+            "typesetter": "ConTeXt"
+          }
+        },
+        "mimeType": "text/x-tex"
+      }
+    ],
+    "outputFormats": [
+      {
+        "id": "pdf",
+        "mimeType": "application/pdf",
+        "rendererPluginId": "pdf-renderer"
+      },
+      {
+        "id": "canvas-pdf",
+        "mimeType": "application/pdf",
+        "rendererPluginId": "canvas-renderer",
+        "outputType": "canvas"
+      }
+    ],
+    "transportType": "websocket",
+    "transportUrl": "ws://localhost:${wsPort}",
+    "incrementalSync": true,
+    "formatter": "",
+    "hasOutline": false,
+    "ui": {
+      "compile": {
+        "fields": [
+          {
+            "key": "format",
+            "label": "Output Format:",
+            "kind": "select",
+            "sendAs": "format",
+            "defaultValue": "pdf",
+            "options": [
+              {
+                "label": "PDF",
+                "value": "pdf"
+              },
+              {
+                "label": "Canvas (PDF)",
+                "value": "canvas-pdf"
+              }
+            ]
+          },
+          {
+            "key": "mode",
+            "label": "Mode: ",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": "",
+            "help": "Optional comma-separated ConTeXt mode list."
+          },
+          {
+            "key": "environment",
+            "label": "Environment: ",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": "",
+            "help": "Optional ConTeXt environment file or comma-separated environment list."
+          },
+          {
+            "key": "result",
+            "label": "Output Name:",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": "",
+            "help": "Optional output job name passed through --result."
+          }
+        ]
+      },
+      "export": {
+        "label": "Export",
+        "fields": [
+          {
+            "key": "format",
+            "label": "Export Format:",
+            "kind": "select",
+            "sendAs": "format",
+            "defaultValue": "pdf",
+            "options": [
+              {
+                "label": "PDF",
+                "value": "pdf"
+              }
+            ]
+          },
+          {
+            "key": "mode",
+            "label": "Mode: ",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": ""
+          },
+          {
+            "key": "environment",
+            "label": "Environment: ",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": ""
+          },
+          {
+            "key": "result",
+            "label": "Output Name:",
+            "kind": "text",
+            "sendAs": "option",
+            "defaultValue": ""
+          },
+          {
+            "key": "includeLog",
+            "label": {
+              "key": "Include log file"
+            },
+            "kind": "boolean",
+            "defaultValue": false,
+            "sendAs": "option"
+          }
+        ]
+      },
+      "renderers": [
+        {
+          "format": "pdf",
+          "label": "PDF"
+        },
+        {
+          "format": "canvas-pdf",
+          "label": "Canvas (PDF)"
+        }
+      ],
+      "info": {
+        "title": "ConTeXt LMTX",
+        "rows": [
+          {
+            "label": {
+              "key": "{typesetter} Engine:",
+              "params": {
+                "typesetter": "ConTeXt"
+              }
+            },
+            "value": {
+              "key": "LuaMetaTeX (TeX Live 2026)"
+            }
+          },
+          {
+            "label": {
+              "key": "Transport Protocol:"
+            },
+            "value": {
+              "key": "WebSocket compile bridge"
+            }
+          },
+          {
+            "label": {
+              "key": "Input Format:"
+            },
+            "value": {
+              "key": "ConTeXt (.tex)"
+            }
+          },
+          {
+            "label": {
+              "key": "Output Formats:"
+            },
+            "value": {
+              "key": "PDF, Canvas (PDF)"
+            }
+          },
+          {
+            "label": {
+              "key": "Source Mapping:"
+            },
+            "value": {
+              "key": "SyncTeX"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
