@@ -4,7 +4,7 @@
   "name": "JabRef LSP",
   "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/jabref-ls/icon.svg",
   "description": "BibTeX/BibLaTeX integrity diagnostics from JabRef's language server (jabls). Surfaces consistency, key, and formatting problems in .bib files as you edit.",
-  "notes": "BibTeX/BibLaTeX diagnostics from JabRef's language server (jabls). jabls speaks LSP over a TCP socket only, so it is run as a local TCP server and bridged to WebSocket via socat + lsp-ws-proxy. Docker mode bundles Java 21, JBang, socat, and the proxy and is the recommended option. System mode requires Java 21, JBang, socat, and cargo on the host. Tracks JabRef main (jablib 6.0-SNAPSHOT); jabls has no standalone pinned release, so this follows the in-development 6.0 line.",
+  "notes": "BibTeX/BibLaTeX diagnostics from JabRef's language server (jabls). jabls communicates LSP over a TCP socket only, so it is run as a local TCP server and bridged to WebSocket via socat + lsp-ws-proxy. Docker mode bundles Java 21, JBang, socat, and the proxy and is the recommended option. System mode requires Java 21, JBang, socat, and cargo on the host. Tracks JabRef main (jablib 6.0-SNAPSHOT); jabls has no standalone pinned release, so this follows the in-development 6.0 line.",
   "tags": [
     "bibtex",
     "biblatex",

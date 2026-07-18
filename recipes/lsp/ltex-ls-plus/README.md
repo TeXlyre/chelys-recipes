@@ -19,7 +19,7 @@ every run.
 - **System**: downloads LTeX LS Plus, installs `lsp-ws-proxy` via Cargo, and
   runs the proxy against `ltex-ls-plus`. Requires Java 21. Per-OS pipelines
   fetch the correct archive (`linux-x64`/`macos-x64` tarballs, `windows-x64`
-  zip) and run the matching launcher (`bin/ltex-ls-plus` or
+  ZIP) and run the matching launcher (`bin/ltex-ls-plus` or
   `bin/ltex-ls-plus.bat` on Windows).
 - **Docker**: builds a self-contained image (`Dockerfile`) bundling Java 21 and
   the proxy, publishing `${wsPort}`.
