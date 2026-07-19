@@ -1,0 +1,264 @@
+{
+    "id": "slidev",
+    "type": "typesetter",
+    "name": "Slidev",
+    "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/slidev/icon.svg",
+    "description": "The Slidev presentation tool. Compiles Markdown decks to PDF over a local WebSocket compile bridge, and exports PPTX, PNG, or a static site as a download.",
+    "notes": "Slidev runs inside a Docker container alongside the shared Chelys typesetter bridge (ghcr.io/texlyre/chelys-typeset-bridge:1) and a Slidev-specific engine adapter. Slidev compiles a Markdown deck (slides.md by default) into slides. Preview is PDF only; PPTX, PNG, and static-site targets are download-only via Export, because PPTX/PNG are captured images and the site is a directory of files. PDF, PPTX, and PNG export render the slides with Playwright's bundled Chromium (provided by the Playwright base image); the static-site build uses Vite and needs no browser. The bridge keeps a per-connection working tree and reconciles it against the manifest TeXlyre sends, so only changed files travel after the first compile. When options.action is 'clear-cache' the tree is wiped and status 0 returned without compiling. When options.export is true the output bytes are returned for download; other option keys are passed through from the recipe UI schema.",
+    "tags": [
+        "slidev",
+        "markdown",
+        "slides",
+        "presentation",
+        "pdf"
+    ],
+    "author": "TeXlyre",
+    "version": "52.18.0",
+    "lastUpdated": "2026-07-19T10:00:00Z",
+    "variables": [
+        {
+            "key": "wsPort",
+            "label": "WebSocket port",
+            "kind": "number",
+            "default": "7044",
+            "help": "Port the compile bridge listens on."
+        }
+    ],
+    "env": {},
+    "extraFiles": [
+        "engine.cjs"
+    ],
+    "modes": [
+        {
+            "kind": "docker",
+            "image": "chelys/slidev:local",
+            "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/slidev/52.18.0/Dockerfile",
+            "buildSteps": [],
+            "runArgs": [
+                "-p",
+                "${wsPort}:${wsPort}",
+                "-e",
+                "WS_PORT=${wsPort}"
+            ]
+        },
+        {
+            "kind": "connect"
+        }
+    ],
+    "typeConfig": {
+        "configId": "slidev",
+        "projectType": "slidev",
+        "inputExtensions": [
+            "md"
+        ],
+        "inputFiles": [
+            {
+                "extension": "md",
+                "label": {
+                    "key": "{typesetter} File",
+                    "params": {
+                        "typesetter": "Slidev"
+                    }
+                },
+                "mimeType": "text/markdown"
+            }
+        ],
+        "outputFormats": [
+            {
+                "id": "pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "pdf-renderer"
+            },
+            {
+                "id": "canvas-pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "canvas-renderer",
+                "outputType": "canvas"
+            },
+            {
+                "id": "zip",
+                "mimeType": "application/zip"
+            },
+            {
+                "id": "pptx",
+                "mimeType": "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+            }
+        ],
+        "transportType": "websocket",
+        "transportUrl": "ws://localhost:${wsPort}",
+        "incrementalSync": true,
+        "formatter": "",
+        "hasOutline": false,
+        "ui": {
+            "compile": {
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Output Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Canvas (PDF)",
+                                "value": "canvas-pdf"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "withClicks",
+                        "label": {
+                            "key": "Export click steps"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false,
+                        "help": {
+                            "key": "Emit one page per click animation instead of one page per slide."
+                        }
+                    },
+                    {
+                        "key": "dark",
+                        "label": {
+                            "key": "Dark theme"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    }
+                ]
+            },
+            "export": {
+                "label": "Export",
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Export Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "PowerPoint (PPTX)",
+                                "value": "pptx"
+                            },
+                            {
+                                "label": "Images (PNG ZIP)",
+                                "value": "png"
+                            },
+                            {
+                                "label": "Static site (ZIP)",
+                                "value": "site"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "range",
+                        "label": {
+                            "key": "Slide range:"
+                        },
+                        "kind": "text",
+                        "sendAs": "option",
+                        "defaultValue": "",
+                        "help": {
+                            "key": "Slides to export, e.g. 1,4-5,6. Leave blank for all."
+                        }
+                    },
+                    {
+                        "key": "withClicks",
+                        "label": {
+                            "key": "Export click steps"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    },
+                    {
+                        "key": "withToc",
+                        "label": {
+                            "key": "Include PDF outline"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    },
+                    {
+                        "key": "dark",
+                        "label": {
+                            "key": "Dark theme"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    }
+                ]
+            },
+            "renderers": [
+                {
+                    "format": "pdf",
+                    "label": "PDF"
+                },
+                {
+                    "format": "canvas-pdf",
+                    "label": "Canvas (PDF)"
+                }
+            ],
+            "info": {
+                "title": "Slidev",
+                "rows": [
+                    {
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "Slidev"
+                            }
+                        },
+                        "value": {
+                            "key": "Slidev v52.18.0"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Transport Protocol:"
+                        },
+                        "value": {
+                            "key": "WebSocket compile bridge"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Input Format:"
+                        },
+                        "value": {
+                            "key": "Markdown (.md)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Output Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, Canvas (PDF)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Export Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, PPTX, PNG (ZIP), Static site (ZIP)"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
