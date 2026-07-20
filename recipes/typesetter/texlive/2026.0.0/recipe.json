@@ -1,0 +1,306 @@
+{
+    "id": "texlive",
+    "type": "typesetter",
+    "name": "TeX Live (LaTeX)",
+    "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/texlive/icon.png",
+    "description": "A full TeX Live LaTeX engine. Compiles .tex documents to PDF over a local WebSocket compile bridge, with switchable pdfLaTeX, LuaLaTeX, and XeLaTeX engines.",
+    "notes": "LaTeX runs inside a Docker container alongside the shared Chelys typesetter bridge (ghcr.io/texlyre/chelys-typeset-bridge:1) and a LaTeX-specific engine adapter. The adapter drives latexmk, which orchestrates the full multi-pass build: it reruns the selected engine until references and the table of contents stabilise, and automatically invokes biber, bibtex, and makeindex as needed. The engine is chosen per compile via the Engine field (pdflatex, lualatex, or xelatex). Shell escape is enabled by default so packages that call external programs work, including minted (Pygments syntax highlighting), svg (Inkscape), and gnuplottex (gnuplot); it can be disabled for untrusted documents. The image is the full TeX Live scheme (texlive-full) plus the external tools Overleaf relies on: Pygments, Inkscape, gnuplot, Ghostscript, ImageMagick, a JRE for asymptote, and Noto fonts. SyncTeX is emitted alongside the PDF as a downloadable artifact. The bridge keeps a per-connection working tree and reconciles it against the manifest TeXlyre sends, so only changed files travel after the first compile. When options.action is 'clear-cache' the tree is wiped and status 0 returned without compiling.",
+    "tags": [
+        "latex",
+        "tex",
+        "pdflatex",
+        "lualatex",
+        "xelatex",
+        "typesetting",
+        "pdf"
+    ],
+    "author": "TeXlyre",
+    "version": "2026.0.0",
+    "lastUpdated": "2026-07-19T10:00:00Z",
+    "variables": [
+        {
+            "key": "wsPort",
+            "label": "WebSocket port",
+            "kind": "number",
+            "default": "7045",
+            "help": "Port the compile bridge listens on."
+        }
+    ],
+    "env": {},
+    "extraFiles": [
+        "engine.cjs"
+    ],
+    "modes": [
+        {
+            "kind": "docker",
+            "image": "chelys/texlive:local",
+            "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/texlive/2026.0.0/Dockerfile",
+            "buildSteps": [],
+            "runArgs": [
+                "-p",
+                "${wsPort}:${wsPort}",
+                "-e",
+                "WS_PORT=${wsPort}"
+            ]
+        },
+        {
+            "kind": "connect"
+        }
+    ],
+    "typeConfig": {
+        "configId": "texlive",
+        "projectType": "latex",
+        "projectGroup": "tex",
+        "inputExtensions": [
+            "tex"
+        ],
+        "inputFiles": [
+            {
+                "extension": "tex",
+                "label": {
+                    "key": "{typesetter} File",
+                    "params": {
+                        "typesetter": "LaTeX"
+                    }
+                },
+                "mimeType": "application/x-tex"
+            }
+        ],
+        "outputFormats": [
+            {
+                "id": "pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "pdf-renderer"
+            },
+            {
+                "id": "canvas-pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "canvas-renderer",
+                "outputType": "canvas"
+            }
+        ],
+        "transportType": "websocket",
+        "transportUrl": "ws://localhost:${wsPort}",
+        "incrementalSync": true,
+        "formatter": "",
+        "hasOutline": false,
+        "ui": {
+            "compile": {
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Output Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Canvas (PDF)",
+                                "value": "canvas-pdf"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "engine",
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "LaTeX"
+                            }
+                        },
+                        "kind": "select",
+                        "sendAs": "option",
+                        "defaultValue": "pdflatex",
+                        "options": [
+                            {
+                                "label": "pdfLaTeX",
+                                "value": "pdflatex"
+                            },
+                            {
+                                "label": "LuaLaTeX",
+                                "value": "lualatex"
+                            },
+                            {
+                                "label": "XeLaTeX",
+                                "value": "xelatex"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "bibProgram",
+                        "label": {
+                            "key": "Bibliography: "
+                        },
+                        "kind": "select",
+                        "sendAs": "option",
+                        "defaultValue": "auto",
+                        "options": [
+                            {
+                                "label": "Automatic",
+                                "value": "auto"
+                            },
+                            {
+                                "label": "Biber",
+                                "value": "biber"
+                            },
+                            {
+                                "label": "BibTeX",
+                                "value": "bibtex"
+                            }
+                        ],
+                        "help": {
+                            "key": "latexmk auto-detects the right program; override only if needed."
+                        }
+                    },
+                    {
+                        "key": "shellEscape",
+                        "label": {
+                            "key": "Shell escape"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": true,
+                        "help": {
+                            "key": "Required by minted, svg, and gnuplottex. Disable for untrusted documents."
+                        }
+                    }
+                ]
+            },
+            "export": {
+                "label": "Export",
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Export Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "engine",
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "LaTeX"
+                            }
+                        },
+                        "kind": "select",
+                        "sendAs": "option",
+                        "defaultValue": "pdflatex",
+                        "options": [
+                            {
+                                "label": "pdfLaTeX",
+                                "value": "pdflatex"
+                            },
+                            {
+                                "label": "LuaLaTeX",
+                                "value": "lualatex"
+                            },
+                            {
+                                "label": "XeLaTeX",
+                                "value": "xelatex"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "shellEscape",
+                        "label": {
+                            "key": "Shell escape"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": true
+                    },
+                    {
+                        "key": "includeLog",
+                        "label": {
+                            "key": "Include log file"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    }
+                ]
+            },
+            "renderers": [
+                {
+                    "format": "pdf",
+                    "label": "PDF"
+                },
+                {
+                    "format": "canvas-pdf",
+                    "label": "Canvas (PDF)"
+                }
+            ],
+            "info": {
+                "title": "LaTeX",
+                "rows": [
+                    {
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "LaTeX"
+                            }
+                        },
+                        "value": {
+                            "key": "LaTeX (TeX Live full 2026, 01/03/2026)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "{typesetter} Compilers:",
+                            "params": {
+                                "typesetter": "LaTeX"
+                            }
+                        },
+                        "value": {
+                            "key": "pdfTeX (2026), XeTeX (2026), LuaTeX (2026)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Build Tool:"
+                        },
+                        "value": {
+                            "key": "latexmk"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Transport Protocol:"
+                        },
+                        "value": {
+                            "key": "WebSocket compile bridge"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Input Format:"
+                        },
+                        "value": {
+                            "key": "LaTeX (.tex)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Output Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, Canvas (PDF)"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
