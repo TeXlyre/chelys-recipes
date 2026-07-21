@@ -1,0 +1,105 @@
+{
+  "id": "texlab",
+  "type": "lsp",
+  "name": "TexLab (LaTeX)",
+  "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/texlab/icon.png",
+  "description": "Language server for LaTeX and BibTeX. Provides diagnostics, completion, hover, go-to-definition, references, and formatting for .tex and .bib files.",
+  "notes": "TexLab communicates LSP over stdio and is bridged to WebSocket with lsp-ws-proxy. System mode installs the prebuilt TexLab binary and builds the proxy with cargo, requiring the Rust toolchain. Docker mode bundles TexLab and the proxy. TexLab indexes the packages used in a project to produce completion; the first index of a large project can take a moment. Build-related features (forward/inverse search, chktex diagnostics) depend on tools being present in the project environment.",
+  "tags": [
+    "latex",
+    "bibtex",
+    "diagnostics",
+    "completion",
+    "formatting"
+  ],
+  "author": "TeXlyre",
+  "version": "5.26.0",
+  "lastUpdated": "2026-07-19T10:00:00Z",
+  "variables": [
+    {
+      "key": "wsPort",
+      "label": "WebSocket port",
+      "kind": "number",
+      "default": "7031",
+      "help": "Port the WebSocket proxy listens on."
+    }
+  ],
+  "env": {},
+  "modes": [
+    {
+      "kind": "system",
+      "installSteps": [
+        {
+          "label": "Install TexLab",
+          "command": "cargo",
+          "args": [
+            "install",
+            "--git",
+            "https://github.com/latex-lsp/texlab",
+            "--tag",
+            "v5.26.0",
+            "--locked",
+            "texlab"
+          ]
+        },
+        {
+          "label": "Install WebSocket proxy",
+          "command": "cargo",
+          "args": [
+            "install",
+            "lsp-ws-proxy",
+            "--locked"
+          ]
+        }
+      ],
+      "runCommand": {
+        "command": "lsp-ws-proxy",
+        "args": [
+          "-l",
+          "127.0.0.1:${wsPort}",
+          "--",
+          "texlab"
+        ]
+      },
+      "uninstallSteps": [
+        {
+          "label": "Remove TexLab",
+          "command": "cargo",
+          "args": [
+            "uninstall",
+            "texlab"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "docker",
+      "image": "chelys/texlab:local",
+      "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/lsp/texlab/5.26.0/Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "-p",
+        "${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}"
+      ]
+    },
+    {
+      "kind": "connect"
+    }
+  ],
+  "typeConfig": {
+    "configId": "texlab",
+    "fileExtensions": [
+      "tex",
+      "bib"
+    ],
+    "languageIdMap": {
+      "tex": "latex",
+      "bib": "bibtex"
+    },
+    "transportUrl": "ws://localhost:${wsPort}",
+    "contentLength": false,
+    "clientConfig": "{\"rootUri\":\"file:///\",\"workspaceFolders\":[],\"capabilities\":{\"workspace\":{\"configuration\":true}},\"initializationOptions\":{}}"
+  }
+}
