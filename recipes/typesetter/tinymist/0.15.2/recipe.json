@@ -1,0 +1,369 @@
+{
+    "id": "tinymist",
+    "type": "typesetter",
+    "name": "Tinymist (Typst)",
+    "iconUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/tinymist/icon.png",
+    "description": "The Typst typesetting system via Tinymist. Compiles .typ documents to PDF, PDF canvas, and SVG canvas over a local WebSocket compile bridge, with experimental HTML export.",
+    "notes": "Tinymist runs inside a Docker container alongside the shared Chelys typesetter bridge (ghcr.io/texlyre/chelys-typeset-bridge:1) and a Tinymist-specific engine adapter. The adapter drives 'tinymist compile', which is a drop-in for 'typst compile'. Render targets: PDF and Canvas (PDF) both produce a PDF; Canvas (SVG) produces Typst's native SVG output for a fast vector canvas. PDF output supports PDF standards (e.g. 1.7, a-2b, ua-1) and tagged-PDF via the grouped PDF options. SVG export can optionally emit each page as a separate SVG bundled in a ZIP, and PNG export always emits per-page images bundled in a ZIP at the chosen resolution. HTML export is experimental: Typst's HTML target is still incomplete and behind a feature flag, so it is offered as a separate download-only export with TYPST_FEATURES=html set. The image reuses the same Tinymist binary as the Tinymist LSP recipe plus Noto fonts for broad script coverage. The bridge keeps a per-connection working tree and reconciles it against the manifest TeXlyre sends, so only changed files travel after the first compile. When options.action is 'clear-cache' the tree is wiped and status 0 returned without compiling.",
+    "tags": [
+        "typst",
+        "tinymist",
+        "typesetting",
+        "pdf",
+        "svg"
+    ],
+    "author": "TeXlyre",
+    "version": "0.15.2",
+    "lastUpdated": "2026-07-19T10:00:00Z",
+    "variables": [
+        {
+            "key": "wsPort",
+            "label": "WebSocket port",
+            "kind": "number",
+            "default": "7046",
+            "help": "Port the compile bridge listens on."
+        }
+    ],
+    "env": {},
+    "extraFiles": [
+        "engine.cjs"
+    ],
+    "modes": [
+        {
+            "kind": "docker",
+            "image": "chelys/tinymist-typeset:local",
+            "dockerfileUrl": "https://texlyre.github.io/chelys-recipes/recipes/typesetter/tinymist/0.15.2/Dockerfile",
+            "buildSteps": [],
+            "runArgs": [
+                "-p",
+                "${wsPort}:${wsPort}",
+                "-e",
+                "WS_PORT=${wsPort}"
+            ]
+        },
+        {
+            "kind": "connect"
+        }
+    ],
+    "typeConfig": {
+        "configId": "tinymist",
+        "projectType": "typst",
+        "projectGroup": "typst",
+        "inputExtensions": [
+            "typ"
+        ],
+        "inputFiles": [
+            {
+                "extension": "typ",
+                "label": {
+                    "key": "{typesetter} File",
+                    "params": {
+                        "typesetter": "Typst"
+                    }
+                },
+                "mimeType": "text/x-typst"
+            }
+        ],
+        "outputFormats": [
+            {
+                "id": "pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "pdf-renderer"
+            },
+            {
+                "id": "canvas-pdf",
+                "mimeType": "application/pdf",
+                "rendererPluginId": "canvas-renderer",
+                "outputType": "canvas"
+            },
+            {
+                "id": "canvas",
+                "mimeType": "image/svg+xml",
+                "rendererPluginId": "canvas-renderer",
+                "outputType": "canvas"
+            },
+            {
+                "id": "png",
+                "mimeType": "application/zip"
+            },
+            {
+                "id": "html",
+                "mimeType": "text/html"
+            }
+        ],
+        "transportType": "websocket",
+        "transportUrl": "ws://localhost:${wsPort}",
+        "incrementalSync": true,
+        "formatter": "typstyle",
+        "hasOutline": true,
+        "ui": {
+            "compile": {
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Output Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Canvas (PDF)",
+                                "value": "canvas-pdf"
+                            },
+                            {
+                                "label": "Canvas (SVG)",
+                                "value": "canvas"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "pdfStandard",
+                        "label": {
+                            "key": "PDF Standard:"
+                        },
+                        "kind": "select",
+                        "sendAs": "option",
+                        "defaultValue": "1.7",
+                        "group": "pdf",
+                        "showWhen": {
+                            "field": "format",
+                            "in": [
+                                "pdf",
+                                "canvas-pdf"
+                            ]
+                        },
+                        "options": [
+                            {
+                                "label": "PDF 1.7",
+                                "value": "1.7"
+                            },
+                            {
+                                "label": "PDF 2.0",
+                                "value": "2.0"
+                            },
+                            {
+                                "label": "PDF/A-2b",
+                                "value": "a-2b"
+                            },
+                            {
+                                "label": "PDF/A-3b",
+                                "value": "a-3b"
+                            },
+                            {
+                                "label": "PDF/UA-1",
+                                "value": "ua-1"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "pdfTags",
+                        "label": {
+                            "key": "Tagged PDF"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": true,
+                        "group": "pdf",
+                        "showWhen": {
+                            "field": "format",
+                            "in": [
+                                "pdf",
+                                "canvas-pdf"
+                            ]
+                        },
+                        "help": {
+                            "key": "Emit accessibility tags. Disable to reduce file size."
+                        }
+                    }
+                ]
+            },
+            "export": {
+                "label": "Export",
+                "fields": [
+                    {
+                        "key": "format",
+                        "label": "Export Format:",
+                        "kind": "select",
+                        "sendAs": "format",
+                        "defaultValue": "pdf",
+                        "options": [
+                            {
+                                "label": "PDF",
+                                "value": "pdf"
+                            },
+                            {
+                                "label": "Canvas (SVG)",
+                                "value": "canvas"
+                            },
+                            {
+                                "label": "SVG",
+                                "value": "svg"
+                            },
+                            {
+                                "label": "Images (PNG ZIP)",
+                                "value": "png"
+                            },
+                            {
+                                "label": "HTML (experimental)",
+                                "value": "html"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "pdfStandard",
+                        "label": {
+                            "key": "PDF Standard:"
+                        },
+                        "kind": "select",
+                        "sendAs": "option",
+                        "defaultValue": "1.7",
+                        "group": "pdf",
+                        "showWhen": {
+                            "field": "format",
+                            "in": [
+                                "pdf"
+                            ]
+                        },
+                        "options": [
+                            {
+                                "label": "PDF 1.7",
+                                "value": "1.7"
+                            },
+                            {
+                                "label": "PDF 2.0",
+                                "value": "2.0"
+                            },
+                            {
+                                "label": "PDF/A-2b",
+                                "value": "a-2b"
+                            },
+                            {
+                                "label": "PDF/UA-1",
+                                "value": "ua-1"
+                            }
+                        ]
+                    },
+                    {
+                        "key": "zipPages",
+                        "label": {
+                            "key": "Zip individual pages"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false,
+                        "showWhen": {
+                            "field": "format",
+                            "in": [
+                                "svg"
+                            ]
+                        },
+                        "help": {
+                            "key": "Export each page as a separate SVG in a ZIP instead of one combined SVG."
+                        }
+                    },
+                    {
+                        "key": "ppi",
+                        "label": {
+                            "key": "PNG resolution (PPI):"
+                        },
+                        "kind": "number",
+                        "sendAs": "option",
+                        "defaultValue": "144",
+                        "showWhen": {
+                            "field": "format",
+                            "in": [
+                                "png"
+                            ]
+                        }
+                    },
+                    {
+                        "key": "includeLog",
+                        "label": {
+                            "key": "Include log file"
+                        },
+                        "kind": "boolean",
+                        "sendAs": "option",
+                        "defaultValue": false
+                    }
+                ]
+            },
+            "renderers": [
+                {
+                    "format": "pdf",
+                    "label": "PDF"
+                },
+                {
+                    "format": "canvas-pdf",
+                    "label": "Canvas (PDF)"
+                },
+                {
+                    "format": "canvas",
+                    "label": "Canvas (SVG)"
+                }
+            ],
+            "info": {
+                "title": "Typst (Tinymist)",
+                "rows": [
+                    {
+                        "label": {
+                            "key": "{typesetter} Engine:",
+                            "params": {
+                                "typesetter": "Typst"
+                            }
+                        },
+                        "value": {
+                            "key": "Tinymist v0.15.2 - @myriaddreamin/typst.ts v0.8.0-rc1"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "{typesetter} Version:",
+                            "params": {
+                                "typesetter": "Typst"
+                            }
+                        },
+                        "value": {
+                            "key": "0.15.0 (15/06/2026)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Transport Protocol:"
+                        },
+                        "value": {
+                            "key": "WebSocket compile bridge"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Input Format:"
+                        },
+                        "value": {
+                            "key": "Typst (.typ)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Output Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, Canvas (PDF), Canvas (SVG)"
+                        }
+                    },
+                    {
+                        "label": {
+                            "key": "Export Formats:"
+                        },
+                        "value": {
+                            "key": "PDF, SVG, PNG (ZIP), HTML (experimental)"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
