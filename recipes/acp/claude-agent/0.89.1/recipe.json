@@ -3,7 +3,7 @@
   "type": "acp",
   "name": "Claude Agent (ACP)",
   "description": "Claude coding agent speaking the Agent Client Protocol, working on the open TeXlyre project through TeXlyre's own project tools.",
-  "notes": "The agent speaks ACP as newline-delimited JSON-RPC over stdio. websocat exposes it over WebSocket in line mode and starts texlyre-acp-bridge for each connection; the bridge runs the agent and serves it a token-protected loopback MCP endpoint whose calls are tunnelled to TeXlyre over the same ACP connection, so edits land in the live Yjs documents. System mode installs websocat with cargo (requires the Rust toolchain) and the adapter with npm (requires Node.js 22 or later). The agent authenticates with the API key set in the recipe's settings, otherwise an ANTHROPIC_API_KEY in the Chelys environment or an existing Claude login; its built-in file and shell tools, the user's Claude settings, and claude.ai account connectors are disabled for TeXlyre sessions.",
+  "notes": "The agent speaks ACP as newline-delimited JSON-RPC over stdio. websocat exposes it over WebSocket in line mode and starts texlyre-acp-bridge for each connection; the bridge runs the agent and serves it a token-protected loopback MCP endpoint whose calls are tunnelled to TeXlyre over the same ACP connection, so edits land in the live Yjs documents. System mode installs websocat with cargo (requires the Rust toolchain) and the adapter with npm (requires Node.js 22 or later). Docker mode bundles websocat, the bridge and the adapter, publishes the port on 127.0.0.1 only, and keeps the agent's sessions in the chelys-claude-agent volume so saved chats can be resumed; it needs an API key, since a Claude login on the host is not visible inside the container. The agent authenticates with the API key set in the recipe's settings, otherwise an ANTHROPIC_API_KEY in the Chelys environment or an existing Claude login; its built-in file and shell tools, the user's Claude settings, and claude.ai account connectors are disabled for TeXlyre sessions.",
   "tags": [
     "agent",
     "acp",
@@ -12,7 +12,7 @@
   ],
   "author": "TeXlyre",
   "version": "0.89.1",
-  "lastUpdated": "2026-10-30T00:00:00Z",
+  "lastUpdated": "2026-11-06T00:00:00Z",
   "variables": [
     {
       "key": "wsPort",
@@ -78,6 +78,23 @@
             "@agentclientprotocol/claude-agent-acp"
           ]
         }
+      ]
+    },
+    {
+      "kind": "docker",
+      "image": "ghcr.io/texlyre/chelys-recipe-claude-agent:0.89.1",
+      "dockerfileUrl": "Dockerfile",
+      "buildSteps": [],
+      "runArgs": [
+        "--init",
+        "-p",
+        "127.0.0.1:${wsPort}:${wsPort}",
+        "-e",
+        "WS_PORT=${wsPort}",
+        "-e",
+        "ANTHROPIC_API_KEY",
+        "-v",
+        "chelys-claude-agent:/home/node"
       ]
     },
     {

@@ -201,7 +201,7 @@ field and in each recipe's `README.md`.
 
 | Recipe | Agent | Notes |
 | --- | --- | --- |
-| **Claude Agent** (`acp/claude-agent`) | [`claude-agent-acp`](https://github.com/agentclientprotocol/claude-agent-acp) | Works on the open project through TeXlyre's project tools only; every edit needs the user's approval. Requires an Anthropic API key (set in the recipe's settings or as `ANTHROPIC_API_KEY`) or a Claude login. |
+| **Claude Agent** (`acp/claude-agent`) | [`claude-agent-acp`](https://github.com/agentclientprotocol/claude-agent-acp) | Works on the open project through TeXlyre's project tools only; every edit needs the user's approval. Requires an Anthropic API key (set in the recipe's settings or as `ANTHROPIC_API_KEY`), or a Claude login in System mode. |
 
 ## Icons
 

@@ -39,13 +39,21 @@ Editable from the Chelys GUI after installing and re-applied on every run.
 - **System**: installs `websocat` with `cargo` (requires the Rust toolchain)
   and the adapter with `npm` (requires Node.js 22 or later), then runs the
   proxy with the bridge. Uninstalling removes the npm package.
+- **Docker**: runs `ghcr.io/texlyre/chelys-recipe-claude-agent`, which bundles
+  `websocat`, the bridge and the adapter, so nothing needs to be installed on
+  the host (e.g. on Windows). The port is published on `127.0.0.1` only. The
+  `chelys-claude-agent` volume keeps the agent's sessions, so saved chats can
+  be resumed after the container restarts. A Claude login on the host isn't
+  visible inside the container, so this mode needs an API key (from the
+  recipe's settings or `ANTHROPIC_API_KEY`).
 - **Connect**: attach to a proxy already listening on `${wsPort}`.
 
 ## Notes
 
 - The agent signs in with the **Anthropic API key** set in the recipe's
   settings (next to the port). Left empty, it uses an `ANTHROPIC_API_KEY` from
-  the environment Chelys was started from, or an existing Claude login. Chelys
+  the environment Chelys was started from, or (in System mode) an existing
+  Claude login. Chelys
   keeps the key on this machine: it is masked, passed to the agent only as
   `ANTHROPIC_API_KEY`, and left out of downloaded recipes. A collaborator using
   a shared agent never sees it.
