@@ -30,6 +30,7 @@ agent's messages pass through unchanged.
 | Key | Description | Default |
 | --- | --- | --- |
 | `wsPort` | Port the WebSocket proxy listens on | `7060` |
+| `anthropicApiKey` | Anthropic API key, passed to the agent as `ANTHROPIC_API_KEY` (secret) | empty: use the environment or a Claude login |
 
 Editable from the Chelys GUI after installing and re-applied on every run.
 
@@ -42,8 +43,12 @@ Editable from the Chelys GUI after installing and re-applied on every run.
 
 ## Notes
 
-- The agent signs in with an existing Claude login or an `ANTHROPIC_API_KEY`
-  present in the environment Chelys was started from.
+- The agent signs in with the **Anthropic API key** set in the recipe's
+  settings (next to the port). Left empty, it uses an `ANTHROPIC_API_KEY` from
+  the environment Chelys was started from, or an existing Claude login. Chelys
+  keeps the key on this machine: it is masked, passed to the agent only as
+  `ANTHROPIC_API_KEY`, and left out of downloaded recipes. A collaborator using
+  a shared agent never sees it.
 - `session-meta.json` disables the agent's built-in tools (file, shell, web)
   and stops it loading the user's Claude settings, skills, and memory
   (`settingSources: []`), and keeps out every MCP server except TeXlyre's,

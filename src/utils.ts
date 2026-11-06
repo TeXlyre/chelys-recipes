@@ -1,7 +1,7 @@
 // src/utils.ts
 import { RecipeManifest, RecipeCategory, RecipeVariable } from './types';
 
-const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select'];
+const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select', 'secret'];
 const MODE_KINDS = ['system', 'docker', 'connect'];
 
 export function validateRecipeManifest(manifest: any): RecipeManifest {
@@ -70,6 +70,10 @@ export function validateVariable(variable: any): RecipeVariable {
 
   if (variable.kind === 'select' && (!Array.isArray(variable.options) || variable.options.length === 0)) {
     throw new Error(`Select variable "${variable.key}" must declare options`);
+  }
+
+  if (variable.kind === 'secret' && variable.default) {
+    throw new Error(`Secret variable "${variable.key}" must not have a default`);
   }
 
   return variable as RecipeVariable;

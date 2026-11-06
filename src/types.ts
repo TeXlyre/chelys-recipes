@@ -7,7 +7,7 @@ export interface RecipeCategory {
 
 export type InstallModeKind = 'system' | 'docker' | 'connect';
 
-export type VariableKind = 'text' | 'number' | 'boolean' | 'select';
+export type VariableKind = 'text' | 'number' | 'boolean' | 'select' | 'secret';
 
 export interface RecipeVariable {
   key: string;

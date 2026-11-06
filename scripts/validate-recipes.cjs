@@ -8,7 +8,7 @@ const { ACP_BRIDGE_FILE, ACP_BRIDGE_SOURCE } = require('./acp-bridge.cjs');
 const RECIPES_DIR = './recipes';
 const CATEGORIES_FILE = './categories.yml';
 
-const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select'];
+const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select', 'secret'];
 const MODE_KINDS = ['system', 'docker', 'connect'];
 
 const BRIDGE_REF = /chelys-typeset-bridge:(\d+)/;
@@ -156,6 +156,26 @@ class RecipeValidator {
       if (variable.kind === 'select' && (!Array.isArray(variable.options) || variable.options.length === 0)) {
         this.log('error', `Select variable "${variable.key}" must declare options`, recipeId);
       }
+      if (variable.kind === 'secret') this.validateSecret(manifest, variable, recipeId);
+    }
+  }
+
+  // A secret (e.g. an API key) ships empty and is only used as a whole env
+  // value: Chelys substitutes it nowhere else, and leaves the env entry out
+  // when it is empty so the user's own environment variable still applies.
+  validateSecret(manifest, variable, recipeId) {
+    const token = `\${${variable.key}}`;
+    if (variable.default) {
+      this.log('error', `Secret variable "${variable.key}" must not have a default`, recipeId);
+    }
+    const envUses = Object.values(manifest.env ?? {}).filter((value) => value === token).length;
+    const { env, ...rest } = manifest;
+    if (JSON.stringify(rest).includes(token)
+      || Object.values(env ?? {}).some((value) => value !== token && String(value).includes(token))) {
+      this.log('error', `Secret variable "${variable.key}" may only be used as a whole env value`, recipeId);
+    }
+    if (envUses === 0) {
+      this.log('warning', `Secret variable "${variable.key}" is not used in env`, recipeId);
     }
   }
 

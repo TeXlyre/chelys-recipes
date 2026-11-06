@@ -99,10 +99,17 @@ COPY engine.cjs /opt/chelys/engine.cjs
 ## Variables
 
 Declare GUI-settable inputs under `variables`. Each needs a `key`, `label`, and
-`kind` (`text`, `number`, `boolean`, or `select`). `select` variables must list
+`kind` (`text`, `number`, `boolean`, `select`, or `secret`). `select` variables must list
 `options`. Reference them anywhere with `${key}` since they are substituted into run
 arguments, Docker run args, environment values, the Dockerfile, `transportUrl`,
 and `clientConfig` on every install and run.
+
+`secret` variables are for API keys and the like. Chelys masks them, leaves them
+out of downloaded recipes, and substitutes them only into `env`, so they can't
+end up in logged commands or in the config TeXlyre receives. Use one only as a
+whole env value with no default, e.g. `"env": {"API_KEY": "${apiKey}"}`. When it
+is left empty, the env entry is dropped and the variable from Chelys's own
+environment applies.
 
 ## Agent recipes
 
