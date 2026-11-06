@@ -201,6 +201,30 @@ class RecipeValidator {
         } else if (!mode.dockerfile) {
           this.log('warning', 'Docker mode has neither dockerfile nor dockerfileUrl', recipeId);
         }
+        this.validateVolumes(mode, recipeId);
+      }
+    }
+  }
+
+  validateVolumes(mode, recipeId) {
+    if (mode.volumes === undefined) {
+      return;
+    }
+    if (!Array.isArray(mode.volumes)) {
+      this.log('error', 'Docker mode volumes must be an array', recipeId);
+      return;
+    }
+    const ids = new Set();
+    for (const volume of mode.volumes) {
+      if (!volume || !/^[a-zA-Z0-9_.-]+$/.test(volume.id ?? '')) {
+        this.log('error', 'Docker volume needs an id of letters, digits, "_", "." or "-"', recipeId);
+      } else if (ids.has(volume.id)) {
+        this.log('error', `Duplicate Docker volume id: ${volume.id}`, recipeId);
+      } else {
+        ids.add(volume.id);
+      }
+      if (!volume || typeof volume.target !== 'string' || !volume.target.startsWith('/')) {
+        this.log('error', 'Docker volume needs an absolute target path', recipeId);
       }
     }
   }

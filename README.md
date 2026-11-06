@@ -161,6 +161,7 @@ args, environment values, the Dockerfile, `transportUrl`, and `clientConfig`.
   `dockerfileUrl` Chelys fetches and writes before `docker build`. Relative
   paths resolve against the manifest, so a `Dockerfile` beside `recipe.json` is
   referenced by name. Files the build copies in are listed in `extraFiles`.
+  Optional `volumes` keep data between runs.
 - `connect`: attach to a server already running on the configured port
 
 ## Included Recipes

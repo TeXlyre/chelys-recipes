@@ -60,6 +60,9 @@ Required fields: `id`, `type`, `name`, `description`, `tags`, `author`,
 - A `system` mode may declare optional `uninstallSteps` (same shape as
   `installSteps`) that Chelys runs when uninstalling. Docker images are removed
   by name, so no extra fields are needed for docker uninstall.
+- A `docker` mode may declare `volumes`, a list of `{ "id", "target" }`, for
+  data that should survive restarts. Chelys names each volume after the recipe
+  and the `id` (`chelys-<recipe>-<id>`) and mounts it at `target`.
 
 ## Dockerfiles
 

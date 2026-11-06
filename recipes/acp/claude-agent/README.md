@@ -41,8 +41,8 @@ Editable from the Chelys GUI after installing and re-applied on every run.
   proxy with the bridge. Uninstalling removes the npm package.
 - **Docker**: runs `ghcr.io/texlyre/chelys-recipe-claude-agent`, which bundles
   `websocat`, the bridge and the adapter, so nothing needs to be installed on
-  the host (e.g. on Windows). The port is published on `127.0.0.1` only. The
-  `chelys-claude-agent` volume keeps the agent's sessions, so saved chats can
+  the host (e.g. on Windows). The port is published on `127.0.0.1` only. A volume
+  keeps the agent's sessions, so saved chats can
   be resumed after the container restarts. A Claude login on the host isn't
   visible inside the container, so this mode needs an API key (from the
   recipe's settings or `ANTHROPIC_API_KEY`).

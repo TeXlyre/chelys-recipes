@@ -36,6 +36,7 @@ export interface DockerMode {
   image: string;
   buildSteps: InstallStep[];
   runArgs: string[];
+  volumes?: { id: string; target: string }[];
   dockerfile?: string;
   dockerfileUrl?: string;
 }
