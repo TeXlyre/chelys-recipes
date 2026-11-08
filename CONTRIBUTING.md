@@ -41,8 +41,8 @@ version in the API entry's `versions` array (newest first). A recipe folder is
 treated as versioned when it contains `x.y.z` sub-folders with a `recipe.json`;
 otherwise the flat `recipe.json` is used.
 
-- `<type>` must match a category `id` in `categories.yml` (currently `lsp` and
-  `typesetter`).
+- `<type>` must match a category `id` in `categories.yml` (currently `lsp`,
+  `typesetter`, and `acp`).
 - `<recipe-id>` must use lowercase letters, numbers, and hyphens only, and must
   equal the manifest's `id` (the version folder name is not the id).
 
@@ -60,6 +60,9 @@ Required fields: `id`, `type`, `name`, `description`, `tags`, `author`,
 - A `system` mode may declare optional `uninstallSteps` (same shape as
   `installSteps`) that Chelys runs when uninstalling. Docker images are removed
   by name, so no extra fields are needed for docker uninstall.
+- A `docker` mode may declare `volumes`, a list of `{ "id", "target" }`, for
+  data that should survive restarts. Chelys names each volume after the recipe
+  and the `id` (`chelys-<recipe>-<id>`) and mounts it at `target`.
 
 ## Dockerfiles
 
@@ -99,10 +102,35 @@ COPY engine.cjs /opt/chelys/engine.cjs
 ## Variables
 
 Declare GUI-settable inputs under `variables`. Each needs a `key`, `label`, and
-`kind` (`text`, `number`, `boolean`, or `select`). `select` variables must list
+`kind` (`text`, `number`, `boolean`, `select`, or `secret`). `select` variables must list
 `options`. Reference them anywhere with `${key}` since they are substituted into run
 arguments, Docker run args, environment values, the Dockerfile, `transportUrl`,
 and `clientConfig` on every install and run.
+
+`secret` variables are for API keys and the like. Chelys masks them, leaves them
+out of downloaded recipes, and substitutes them only into `env`, so they can't
+end up in logged commands or in the config TeXlyre receives. Use one only as a
+whole env value with no default, e.g. `"env": {"API_KEY": "${apiKey}"}`. When it
+is left empty, the env entry is dropped and the variable from Chelys's own
+environment applies.
+
+## Agent recipes
+
+Agent recipes (type `acp`) run the agent behind `texlyre-acp-bridge.cjs`, which
+gives it TeXlyre's project tools over the same connection. The canonical bridge
+lives in [`acp-bridge/1/`](acp-bridge/1/README.md); since a recipe can only ship
+files from its own version directory, each agent recipe keeps a copy beside its
+`recipe.json` and lists it in `extraFiles`. The validator fails when a copy
+differs from the canonical one, and `npm run sync:acp-bridge` refreshes every
+copy after the bridge changes.
+
+Agent options, such as limiting the agent to TeXlyre's tools, go in a JSON file
+beside the bridge, listed in `extraFiles` and passed to it with
+`--session-meta <file>`. The bridge sends them with every new session and drops
+whatever options and MCP servers the client asks for, so whoever reaches the
+WebSocket can't lift the restrictions. `typeConfig.sessionMeta` is sent by
+TeXlyre instead, so the bridge ignores it, and the validator warns when a
+bridged recipe sets it.
 
 ## Validation
 
@@ -161,6 +189,7 @@ These recipes are included without an icon. Chelys falls back to a generic recip
 
 | Recipe | Reason |
 | --- | --- |
+| `acp/claude-agent` | the Claude and Anthropic marks are published without a copyright license for redistribution |
 | `lsp/vale-ls` | no icon is bundled without a clear upstream redistribution grant; Chelys falls back to the generic recipe icon |
 | `typesetter/context` | ConTeXt's code is GPLv2, incompatible with the GPLv3 texts here, and its documentation and branding are CC BY-NC-SA, whose NonCommercial clause rules out redistribution |
 | `typesetter/pretext` | PreTeXt is GPL-3.0, so the license is not the obstacle; no logo is published in a locatable form |

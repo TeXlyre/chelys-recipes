@@ -20,6 +20,7 @@
     "build:api": "node scripts/build-api.cjs",
     "prepare": "npm run build",
     "validate": "node scripts/validate-recipes.cjs",
+    "sync:acp-bridge": "node scripts/sync-acp-bridge.cjs",
     "matrix": "node scripts/publish-matrix.cjs",
     "dev": "npm run build:api && npm run build",
     "build:pages-example": "npm run dev && cd example/github-pages-example && npm install",

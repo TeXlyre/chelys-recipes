@@ -1,0 +1,17 @@
+{
+  "claudeCode": {
+    "options": {
+      "tools": [],
+      "settingSources": [],
+      "strictMcpConfig": true,
+      "settings": {
+        "disableClaudeAiConnectors": true
+      },
+      "allowedTools": [
+        "mcp__texlyre__list_files",
+        "mcp__texlyre__read_file",
+        "mcp__texlyre__compile"
+      ]
+    }
+  }
+}
