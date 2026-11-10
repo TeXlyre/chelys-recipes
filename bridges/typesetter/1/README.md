@@ -1,8 +1,8 @@
 # Chelys typesetter bridge
 
-Shared implementation of the TeXlyre typesetter WebSocket protocol. Typesetter
-recipes copy it in  the same way LSP recipes reuse
-`lsp-ws-proxy`.
+Shared implementation of the TeXlyre typesetter WebSocket protocol. Typesetter recipes use its published Docker image
+`ghcr.io/texlyre/chelys-typeset-bridge:1` without copying the bridge script
+into each recipe.
 
 ## Usage
 

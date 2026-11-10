@@ -5,7 +5,7 @@ TeXlyre over a local WebSocket compile bridge.
 
 The Docker image layers TeX Live, the Quarto CLI, and its Python and R
 execution stacks with the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) and a Quarto-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a Quarto-specific
 engine adapter (`engine.cjs`). Pandoc and Typst are packaged inside Quarto itself, so
 the `pdf` format renders through LaTeX while `typst` uses the bundled Typst
 binary.

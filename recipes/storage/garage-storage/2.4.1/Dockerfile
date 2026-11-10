@@ -20,7 +20,7 @@ ENV NODE_ENV=production \
 
 COPY --from=garage /garage /usr/local/bin/garage
 COPY --from=bridge /opt/texlyre-storage/node_modules /opt/texlyre-storage/node_modules
-COPY bridge.cjs storage-core.cjs s3-store.cjs entrypoint.sh /opt/texlyre-storage/
+COPY bridge.cjs storage-backend.cjs storage-core.cjs s3-store.cjs entrypoint.sh /opt/texlyre-storage/
 
 RUN chmod +x /opt/texlyre-storage/entrypoint.sh \
     && mkdir -p /var/lib/garage

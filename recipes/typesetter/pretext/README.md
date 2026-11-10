@@ -2,7 +2,7 @@
 
 Builds [PreTeXt](https://pretextbook.org/) `.ptx` projects and exposes the engine to TeXlyre over a local WebSocket compile bridge.
 
-The Docker image layers TeX Live, a PreTeXt virtualenv, and the shared [Chelys typesetter bridge](../../../bridge/1/README.md) with a PreTeXt-specific engine adapter (`engine.cjs`).
+The Docker image layers TeX Live, a PreTeXt virtualenv, and the shared [Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) with a PreTeXt-specific engine adapter (`engine.cjs`).
 
 ## PreTeXt builds projects
 

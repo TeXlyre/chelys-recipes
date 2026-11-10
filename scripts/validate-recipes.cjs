@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 
-const { ACP_BRIDGE_FILE, ACP_BRIDGE_SOURCE } = require('./acp-bridge.cjs');
+const bridges = require('./bridges.cjs');
 
 const RECIPES_DIR = './recipes';
 const CATEGORIES_FILE = './categories.yml';
@@ -307,18 +307,17 @@ class RecipeValidator {
       }
     }
 
-    if (!(manifest.extraFiles || []).includes(ACP_BRIDGE_FILE)) {
-      return;
+    if (typeConfig.sessionMeta !== undefined && (manifest.extraFiles || []).includes(bridges.acp.file)) {
+      this.log('warning', `typeConfig.sessionMeta is ignored behind ${bridges.acp.file}; pass the options with --session-meta instead`, recipeId);
     }
-    if (typeConfig.sessionMeta !== undefined) {
-      this.log('warning', `typeConfig.sessionMeta is ignored behind ${ACP_BRIDGE_FILE}; pass the options with --session-meta instead`, recipeId);
-    }
-    const copy = path.join(recipeVersionPath, ACP_BRIDGE_FILE);
-    if (
-      fs.existsSync(copy) &&
-      !fs.readFileSync(copy).equals(fs.readFileSync(ACP_BRIDGE_SOURCE))
-    ) {
-      this.log('error', `${ACP_BRIDGE_FILE} differs from ${ACP_BRIDGE_SOURCE}; run npm run sync:acp-bridge`, recipeId);
+  }
+
+  validateBridgeCopy(manifest, recipeId, recipeVersionPath) {
+    const bridge = bridges[manifest.type];
+    if (!bridge || !(manifest.extraFiles || []).includes(bridge.file)) return;
+    const copy = path.join(recipeVersionPath, bridge.file);
+    if (fs.existsSync(copy) && !fs.readFileSync(copy).equals(fs.readFileSync(bridge.source))) {
+      this.log('error', `${bridge.file} differs from ${bridge.source}; run npm run sync:bridges`, recipeId);
     }
   }
 
@@ -396,6 +395,7 @@ class RecipeValidator {
     this.validateExtraFiles(manifest, recipeId, recipeVersionPath);
     this.validateTypesetter(manifest, recipeId, recipeVersionPath);
     this.validateAcp(manifest, recipeId, recipeVersionPath);
+    this.validateBridgeCopy(manifest, recipeId, recipeVersionPath);
 
     return manifest;
   }

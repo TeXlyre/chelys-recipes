@@ -5,7 +5,7 @@ exposes the workflow to TeXlyre over a local WebSocket compile bridge.
 
 The Docker image layers GNU Emacs and Org 9.8.7 on the same
 `texlive/texlive:latest-full` base used by the TeX Live and Sphinx recipes, then
-adds the shared [Chelys typesetter bridge](../../../bridge/1/README.md) and an
+adds the shared [Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and an
 Org-specific engine adapter (`engine.cjs`). Org itself is pinned from GNU ELPA
 instead of relying on the older version bundled by the distribution's Emacs.
 

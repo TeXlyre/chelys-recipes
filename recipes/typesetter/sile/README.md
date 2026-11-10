@@ -2,7 +2,7 @@
 
 Compiles [SILE](https://sile-typesetter.org/) `.sil` documents to PDF and exposes the engine to TeXlyre over a local WebSocket compile bridge.
 
-The Docker image layers the SILE release binary with the shared [Chelys typesetter bridge](../../../bridge/1/README.md), which implements the TeXlyre compile protocol. The recipe supplies only the engine invocation:
+The Docker image layers the SILE release binary with the shared [Chelys typesetter bridge](../../../bridges/typesetter/1/README.md), which implements the TeXlyre compile protocol. The recipe supplies only the engine invocation:
 
 ```dockerfile
 ENV ENGINE_CMD=sile

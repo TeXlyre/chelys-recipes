@@ -118,11 +118,12 @@ environment applies.
 
 Agent recipes (type `acp`) run the agent behind `texlyre-acp-bridge.cjs`, which
 gives it TeXlyre's project tools over the same connection. The canonical bridge
-lives in [`acp-bridge/1/`](acp-bridge/1/README.md); since a recipe can only ship
+lives in [`bridges/acp/1/`](bridges/acp/1/README.md); since a recipe can only ship
 files from its own version directory, each agent recipe keeps a copy beside its
 `recipe.json` and lists it in `extraFiles`. The validator fails when a copy
-differs from the canonical one, and `npm run sync:acp-bridge` refreshes every
-copy after the bridge changes.
+differs from the canonical one. `npm run sync:bridges` refreshes the ACP and
+storage copies after their canonical sources change. Typesetter recipes use the
+published `chelys-typeset-bridge:1` image and need no local bridge copies.
 
 Agent options, such as limiting the agent to TeXlyre's tools, go in a JSON file
 beside the bridge, listed in `extraFiles` and passed to it with

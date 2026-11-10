@@ -1,23 +1,14 @@
-// recipes/storage/garage-storage/2.4.1/bridge.cjs
+// bridges/storage/1/bridge.cjs
 'use strict';
 
 const { once } = require('node:events');
 const { randomBytes } = require('node:crypto');
 const { WebSocketServer } = require('ws');
-const { StorageCore } = require('./storage-core.cjs');
-const { S3Store } = require('./s3-store.cjs');
+const storage = require('./storage-backend.cjs');
 
 const PORT = Number(process.env.WS_PORT || 7060);
 const CHUNK_SIZE = 256 * 1024;
 const MAX_SMALL_UPLOAD = 16 * 1024 * 1024;
-const storage = new StorageCore(new S3Store({
-	endpoint: process.env.GARAGE_S3_ENDPOINT || 'http://127.0.0.1:3900',
-	region: process.env.GARAGE_S3_REGION || 'garage',
-	bucket: process.env.GARAGE_BUCKET || 'texlyre-storage',
-	accessKeyId: process.env.GARAGE_ACCESS_KEY,
-	secretAccessKey: process.env.GARAGE_SECRET_KEY,
-}), { prefixSecret: process.env.STORAGE_PREFIX_SECRET });
-
 function sendJson(ws, value) { ws.send(JSON.stringify(value)); }
 function fail(ws, id, code, message, extra = {}) {
 	sendJson(ws, { id, type: 'result', ok: false, error: { code, message, ...extra } });

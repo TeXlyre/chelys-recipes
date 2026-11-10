@@ -53,6 +53,7 @@
   },
   "extraFiles": [
     "bridge.cjs",
+    "storage-backend.cjs",
     "storage-core.cjs",
     "s3-store.cjs",
     "entrypoint.sh"

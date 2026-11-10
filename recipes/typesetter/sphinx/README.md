@@ -5,7 +5,7 @@ reStructuredText or MyST Markdown and exposes the engine to TeXlyre over a local
 WebSocket compile bridge.
 
 The Docker image layers TeX Live, a Sphinx virtualenv, and the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) with a Sphinx-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) with a Sphinx-specific
 engine adapter (`engine.cjs`). It uses the same `texlive/texlive:latest-full`
 base as the TeX Live recipe, because PDF output goes through the `latex` builder
 and `latexmk`.

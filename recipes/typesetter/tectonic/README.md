@@ -5,7 +5,7 @@ Compiles LaTeX `.tex` documents to PDF with
 engine that automatically obtains the TeX support files it needs.
 
 The Docker image layers the Tectonic release binary with the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) and a small engine
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a small engine
 adapter (`engine.cjs`). The adapter uses Tectonic's V2 `-X compile` command and
 returns the generated PDF and SyncTeX data to TeXlyre.
 

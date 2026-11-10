@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'bridge/**'
+      - 'bridges/typesetter/**'
       - 'recipes/**'
       - 'scripts/publish-matrix.cjs'
       - '.github/workflows/publish-images.yml'
@@ -42,7 +42,7 @@ jobs:
 
       - uses: docker/build-push-action@v6
         with:
-          context: ./bridge/${{ matrix.version }}
+          context: ./bridges/typesetter/${{ matrix.version }}
           push: true
           tags: ghcr.io/texlyre/chelys-typeset-bridge:${{ matrix.version }}
 

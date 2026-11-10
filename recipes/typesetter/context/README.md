@@ -5,7 +5,7 @@ exposes the engine to TeXlyre over a local WebSocket compile bridge.
 
 The Docker image uses the same `texlive/texlive:latest-full` base as the TeX
 Live recipe, layered with the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) and a ConTeXt-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a ConTeXt-specific
 engine adapter (`engine.cjs`).
 
 ## LuaMetaTeX by default

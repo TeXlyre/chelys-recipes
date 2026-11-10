@@ -5,7 +5,7 @@ TeXlyre over a local WebSocket compile bridge.
 
 The Docker image reuses the same Tinymist binary as the
 [Tinymist LSP recipe](../../lsp/tinymist-lsp/README.md), layered with the
-shared [Chelys typesetter bridge](../../../bridge/1/README.md) and a
+shared [Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a
 Tinymist-specific engine adapter (`engine.cjs`). The adapter drives
 `tinymist compile`, which is a drop-in for `typst compile`.
 

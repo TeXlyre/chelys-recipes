@@ -5,7 +5,7 @@ installation and exposes the engine to TeXlyre over a local WebSocket compile
 bridge.
 
 The Docker image layers TeX Live full, Node, and the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) with a LaTeX-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) with a LaTeX-specific
 engine adapter (`engine.cjs`).
 
 ## latexmk drives the build

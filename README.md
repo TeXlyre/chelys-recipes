@@ -207,6 +207,9 @@ field and in each recipe's `README.md`.
 Garage runs with its TeXlyre storage bridge in one Docker container (default
 port `7060`), with persistent Garage data and credentials under
 `/var/lib/garage`. The `connect` mode can attach to an existing bridge.
+The shared storage WebSocket bridge is maintained under [`bridges/storage/1`](bridges/storage/1/README.md)
+and synchronized into the recipe with `npm run sync:bridges`; its Garage backend
+remains in the recipe. Typesetters instead consume the shared bridge Docker image.
 TeXlyre encrypts project data before upload and doesn't require decrytion keys. 
 
 ### Agents

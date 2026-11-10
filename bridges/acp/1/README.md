@@ -4,7 +4,7 @@ Canonical source of `texlyre-acp-bridge.cjs`, the stdio bridge that ACP agent
 recipes run between `websocat` and the agent. Recipes cannot reference files
 outside their own version directory, so each agent recipe ships a copy in its
 `extraFiles`; `npm run validate` fails when a copy differs from this one, and
-`npm run sync:acp-bridge` refreshes every copy.
+`npm run sync:bridges` refreshes every copy.
 
 ```
 TeXlyre ⇄ WebSocket ⇄ websocat ⇄ stdio ⇄ texlyre-acp-bridge ⇄ stdio ⇄ agent

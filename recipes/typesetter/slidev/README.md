@@ -4,7 +4,7 @@ Compiles [Slidev](https://sli.dev/) Markdown decks and exposes the engine to
 TeXlyre over a local WebSocket compile bridge.
 
 The Docker image layers the Slidev CLI on Playwright's Chromium base with the
-shared [Chelys typesetter bridge](../../../bridge/1/README.md) and a
+shared [Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a
 Slidev-specific engine adapter (`engine.cjs`).
 
 ## Slidev compiles a deck

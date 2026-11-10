@@ -6,7 +6,7 @@ a local WebSocket compile bridge.
 
 The Docker image layers Ruby, the Asciidoctor converter gems, and their common
 external dependencies with the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) and an AsciiDoc-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and an AsciiDoc-specific
 engine adapter (`engine.cjs`).
 
 ## One converter per format

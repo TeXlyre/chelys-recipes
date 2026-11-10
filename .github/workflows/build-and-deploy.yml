@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'recipes/**'
+      - 'bridges/**'
       - 'categories.yml'
       - 'src/**'
       - 'scripts/**'
@@ -13,6 +14,7 @@ on:
     branches: [ main ]
     paths:
       - 'recipes/**'
+      - 'bridges/**'
       - 'categories.yml'
       - 'src/**'
       - 'scripts/**'
@@ -83,8 +85,8 @@ jobs:
       - name: Copy recipes to example dist
         run: cp -r recipes example/github-pages-example/dist/
 
-      - name: Copy bridge to example dist
-        run: cp -r bridge example/github-pages-example/dist/
+      - name: Copy bridges to example dist
+        run: cp -r bridges example/github-pages-example/dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

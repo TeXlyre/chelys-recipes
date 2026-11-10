@@ -5,7 +5,7 @@ to TeXlyre over a local WebSocket compile bridge.
 
 The Docker image installs the official upstream binary release, which bundles
 Guile and Ghostscript, and integrates it with the shared
-[Chelys typesetter bridge](../../../bridge/1/README.md) and a LilyPond-specific
+[Chelys typesetter bridge](../../../bridges/typesetter/1/README.md) and a LilyPond-specific
 engine adapter (`engine.cjs`). A distribution package is not used, because
 those lag the current stable release substantially.
 
