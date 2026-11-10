@@ -161,6 +161,7 @@ args, environment values, the Dockerfile, `transportUrl`, and `clientConfig`.
   `dockerfileUrl` Chelys fetches and writes before `docker build`. Relative
   paths resolve against the manifest, so a `Dockerfile` beside `recipe.json` is
   referenced by name. Files the build copies in are listed in `extraFiles`.
+  Optional `volumes` keep data between runs.
 - `connect`: attach to a server already running on the configured port
 
 ## Included Recipes
@@ -196,6 +197,27 @@ field and in each recipe's `README.md`.
 | **Tectonic** (`typesetter/tectonic`) | `.tex` | PDF | SyncTeX alongside the PDF |
 | **TeX Live** (`typesetter/texlive`) | `.tex` | PDF | switchable pdfLaTeX, LuaLaTeX, XeLaTeX, pLaTeX, upLaTeX |
 | **Tinymist** (`typesetter/tinymist`) | `.typ` | PDF, PDF canvas, SVG canvas | PNG and SVG page bundles, experimental HTML |
+
+### Storage
+
+| Recipe | Transport | Notes |
+| --- | --- | --- |
+| **Garage** (`storage/garage-storage`) | WebSocket | Durable, opaque project storage with binary streaming, revision history and conditional HEAD updates. |
+
+Garage runs with its TeXlyre storage bridge in one Docker container (default
+port `7060`), with persistent Garage data and credentials under
+`/var/lib/garage`. The `connect` mode can attach to an existing bridge.
+TeXlyre encrypts project data before upload; the storage bridge never requires
+project decryption keys. Project deletion requires an owner proof and retains a
+tombstone to prevent late clients from restoring deleted data. Existing legacy
+object prefixes are migrated at startup. Back up the persistent volume,
+including `storage.env`, to retain access to existing projects.
+
+### Agents
+
+| Recipe | Agent | Notes |
+| --- | --- | --- |
+| **Claude Agent** (`acp/claude-agent`) | [`claude-agent-acp`](https://github.com/agentclientprotocol/claude-agent-acp) | Works on the open project through TeXlyre's project tools only; every edit needs the user's approval. Requires an Anthropic API key (set in the recipe's settings or as `ANTHROPIC_API_KEY`), or a Claude login in System mode. |
 
 ## Icons
 
