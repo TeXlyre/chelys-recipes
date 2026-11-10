@@ -207,11 +207,7 @@ field and in each recipe's `README.md`.
 Garage runs with its TeXlyre storage bridge in one Docker container (default
 port `7060`), with persistent Garage data and credentials under
 `/var/lib/garage`. The `connect` mode can attach to an existing bridge.
-TeXlyre encrypts project data before upload; the storage bridge never requires
-project decryption keys. Project deletion requires an owner proof and retains a
-tombstone to prevent late clients from restoring deleted data. Existing legacy
-object prefixes are migrated at startup. Back up the persistent volume,
-including `storage.env`, to retain access to existing projects.
+TeXlyre encrypts project data before upload and doesn't require decrytion keys. 
 
 ### Agents
 

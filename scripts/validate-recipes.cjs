@@ -3,10 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 
+const { ACP_BRIDGE_FILE, ACP_BRIDGE_SOURCE } = require('./acp-bridge.cjs');
+
 const RECIPES_DIR = './recipes';
 const CATEGORIES_FILE = './categories.yml';
 
-const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select'];
+const VARIABLE_KINDS = ['text', 'number', 'boolean', 'select', 'secret'];
 const MODE_KINDS = ['system', 'docker', 'connect'];
 
 const BRIDGE_REF = /chelys-typeset-bridge:(\d+)/;
@@ -154,6 +156,26 @@ class RecipeValidator {
       if (variable.kind === 'select' && (!Array.isArray(variable.options) || variable.options.length === 0)) {
         this.log('error', `Select variable "${variable.key}" must declare options`, recipeId);
       }
+      if (variable.kind === 'secret') this.validateSecret(manifest, variable, recipeId);
+    }
+  }
+
+  // A secret (e.g. an API key) ships empty and is only used as a whole env
+  // value: Chelys substitutes it nowhere else, and leaves the env entry out
+  // when it is empty so the user's own environment variable still applies.
+  validateSecret(manifest, variable, recipeId) {
+    const token = `\${${variable.key}}`;
+    if (variable.default) {
+      this.log('error', `Secret variable "${variable.key}" must not have a default`, recipeId);
+    }
+    const envUses = Object.values(manifest.env ?? {}).filter((value) => value === token).length;
+    const { env, ...rest } = manifest;
+    if (JSON.stringify(rest).includes(token)
+      || Object.values(env ?? {}).some((value) => value !== token && String(value).includes(token))) {
+      this.log('error', `Secret variable "${variable.key}" may only be used as a whole env value`, recipeId);
+    }
+    if (envUses === 0) {
+      this.log('warning', `Secret variable "${variable.key}" is not used in env`, recipeId);
     }
   }
 
@@ -179,6 +201,30 @@ class RecipeValidator {
         } else if (!mode.dockerfile) {
           this.log('warning', 'Docker mode has neither dockerfile nor dockerfileUrl', recipeId);
         }
+        this.validateVolumes(mode, recipeId);
+      }
+    }
+  }
+
+  validateVolumes(mode, recipeId) {
+    if (mode.volumes === undefined) {
+      return;
+    }
+    if (!Array.isArray(mode.volumes)) {
+      this.log('error', 'Docker mode volumes must be an array', recipeId);
+      return;
+    }
+    const ids = new Set();
+    for (const volume of mode.volumes) {
+      if (!volume || !/^[a-zA-Z0-9_.-]+$/.test(volume.id ?? '')) {
+        this.log('error', 'Docker volume needs an id of letters, digits, "_", "." or "-"', recipeId);
+      } else if (ids.has(volume.id)) {
+        this.log('error', `Duplicate Docker volume id: ${volume.id}`, recipeId);
+      } else {
+        ids.add(volume.id);
+      }
+      if (!volume || typeof volume.target !== 'string' || !volume.target.startsWith('/')) {
+        this.log('error', 'Docker volume needs an absolute target path', recipeId);
       }
     }
   }
@@ -243,6 +289,36 @@ class RecipeValidator {
 
     if (hasDockerMode && dockerfile && bridgeVersion === null) {
       this.log('warning', 'Typesetter Dockerfile does not use chelys-typeset-bridge; the compile protocol is reimplemented inline', recipeId);
+    }
+  }
+
+  validateAcp(manifest, recipeId, recipeVersionPath) {
+    if (manifest.type !== 'acp') {
+      return;
+    }
+
+    const typeConfig = manifest.typeConfig || {};
+    for (const key of ['sessionMeta', 'mcpServers']) {
+      if (typeConfig[key] === undefined) continue;
+      try {
+        JSON.parse(typeConfig[key]);
+      } catch (error) {
+        this.log('error', `typeConfig.${key} must be a JSON string: ${error.message}`, recipeId);
+      }
+    }
+
+    if (!(manifest.extraFiles || []).includes(ACP_BRIDGE_FILE)) {
+      return;
+    }
+    if (typeConfig.sessionMeta !== undefined) {
+      this.log('warning', `typeConfig.sessionMeta is ignored behind ${ACP_BRIDGE_FILE}; pass the options with --session-meta instead`, recipeId);
+    }
+    const copy = path.join(recipeVersionPath, ACP_BRIDGE_FILE);
+    if (
+      fs.existsSync(copy) &&
+      !fs.readFileSync(copy).equals(fs.readFileSync(ACP_BRIDGE_SOURCE))
+    ) {
+      this.log('error', `${ACP_BRIDGE_FILE} differs from ${ACP_BRIDGE_SOURCE}; run npm run sync:acp-bridge`, recipeId);
     }
   }
 
@@ -319,6 +395,7 @@ class RecipeValidator {
     this.validateModes(manifest, recipeId, recipeVersionPath);
     this.validateExtraFiles(manifest, recipeId, recipeVersionPath);
     this.validateTypesetter(manifest, recipeId, recipeVersionPath);
+    this.validateAcp(manifest, recipeId, recipeVersionPath);
 
     return manifest;
   }
