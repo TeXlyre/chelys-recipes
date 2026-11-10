@@ -8,3 +8,6 @@ categories:
   - id: acp
     name: Agents
     description: Agent Client Protocol agents exposed to TeXlyre over a line-mode WebSocket proxy
+  - id: storage
+    name: Storage
+    description: Persistent project storage exposed to TeXlyre over a WebSocket bridge

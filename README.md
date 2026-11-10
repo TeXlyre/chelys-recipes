@@ -198,6 +198,17 @@ field and in each recipe's `README.md`.
 | **TeX Live** (`typesetter/texlive`) | `.tex` | PDF | switchable pdfLaTeX, LuaLaTeX, XeLaTeX, pLaTeX, upLaTeX |
 | **Tinymist** (`typesetter/tinymist`) | `.typ` | PDF, PDF canvas, SVG canvas | PNG and SVG page bundles, experimental HTML |
 
+### Storage
+
+| Recipe | Transport | Notes |
+| --- | --- | --- |
+| **Garage** (`storage/garage-storage`) | WebSocket | Durable, opaque project storage with binary streaming, revision history and conditional HEAD updates. |
+
+Garage runs with its TeXlyre storage bridge in one Docker container (default
+port `7060`), with persistent Garage data and credentials under
+`/var/lib/garage`. The `connect` mode can attach to an existing bridge.
+TeXlyre encrypts project data before upload and doesn't require decrytion keys. 
+
 ### Agents
 
 | Recipe | Agent | Notes |
