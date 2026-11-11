@@ -5,7 +5,7 @@ ENV CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 RUN cargo install lsp-ws-proxy --locked --root /out
 
 
-FROM eclipse-temurin:21-jdk
+FROM eclipse-temurin:21-jdk-noble
 
 ARG JABREF_REF=main
 
