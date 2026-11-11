@@ -3,7 +3,7 @@
 set -eu
 umask 077
 
-STATE_DIR=/var/lib/garage
+STATE_DIR=${GARAGE_STATE_DIR:-/var/lib/garage}
 STATE_FILE="$STATE_DIR/storage.env"
 CONFIG_FILE="$STATE_DIR/garage.toml"
 
@@ -18,6 +18,11 @@ random_base64() {
 }
 
 if [ ! -f "$STATE_FILE" ]; then
+  if [ -e "$CONFIG_FILE" ] ||
+     [ -n "$(find "$STATE_DIR/meta" "$STATE_DIR/data" -mindepth 1 -print -quit)" ]; then
+    echo "Existing Garage state found without storage.env. Restore the original storage.env; refusing to generate new credentials." >&2
+    exit 1
+  fi
   ACCESS_KEY="GK$(random_hex 16)"
   SECRET_KEY="$(random_hex 32)"
   RPC_SECRET="$(random_hex 32)"
@@ -34,10 +39,17 @@ STORAGE_PREFIX_SECRET=$(random_hex 32)
 EOF
 fi
 
-if ! grep -q '^STORAGE_PREFIX_SECRET=' "$STATE_FILE"; then
-  printf 'STORAGE_PREFIX_SECRET=%s\n' "$(random_hex 32)" >> "$STATE_FILE"
+if ! grep -Eq '^STORAGE_PREFIX_SECRET=[a-f0-9]{64}$' "$STATE_FILE"; then
+  echo "Garage storage.env is missing a valid STORAGE_PREFIX_SECRET. Restore the original storage.env; refusing to change project paths." >&2
+  exit 1
 fi
 . "$STATE_FILE"
+
+if [ ! -f "$CONFIG_FILE" ] &&
+   [ -n "$(find "$STATE_DIR/meta" "$STATE_DIR/data" -mindepth 1 -print -quit)" ]; then
+  echo "Existing Garage data found without garage.toml. Restore the original configuration before starting." >&2
+  exit 1
+fi
 
 if [ ! -f "$CONFIG_FILE" ]; then
   cat > "$CONFIG_FILE" <<EOF
